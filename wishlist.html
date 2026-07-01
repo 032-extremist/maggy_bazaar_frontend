@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
+    <script src="header.js" defer></script>
+</head>
+
+<body>
+    <div class="site-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-logo">M</div>
+                <div class="brand-name">MAGGY BAZAAR</div>
+            </div>
+
+          <!-- <div class="search-area">
+                <div class="search-bar">
+                    <span></span>
+                    <input type="text" placeholder="Search products, brands and categories">
+                </div>
+            </div> -->
+
+        <div class="search-area">
+            <div class="search-wrapper">
+                <input id="search-input" type="text" placeholder="Search products…" autocomplete="off">
+                <div id="search-results"></div> 
+            </div> 
+        </div>
+        
+        <script src="search.js"></script>
+
+            <div class="nav-icons-container">
+                <div class="nav-icon-btn">
+                    <a href="home.html">
+                        <img src="icons/home-icon.png" alt="Home Icon"></a>
+                </div>
+                <div class="nav-icon-btn">
+                    <a href="account.html">
+                        <img src="icons/account-icon.png" alt="Account Icon"></a>
+                </div>
+                <div class="nav-icon-btn"><a href="cart.html">
+                        <img src="icons/cart-icon.png" alt="Cart Icon"></a></div>
+            </div>
+
+            <!-- THREE LINE ICON (HAMBURGER) - FULLY CLICKABLE -->
+            <button class="hamburger-btn nav-icon-btn" onclick="showMenu()" id="hamburgerIcon" aria-label="Menu">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Background overlay when menu is open -->
+    <div class="menu-backdrop" id="menuBackdrop"></div>
+
+    <!-- DROPDOWN MENU : links to other pages (simulated with # but ready for real URLs) -->
+    <div class="dropdown-nav" id="dropdownMenu">
+        <div class="dropdown-inner">
+
+            <!-- MY MG-B ACCOUNT section -->
+            <div class="menu-group">
+                <div class="group-title">MY MG-B ACCOUNT</div>
+                <ul class="dropdown-links-list">
+                    <li><a href="orders.html" class="menu-link"><span class="menu-icon"><img class="icons"
+                                    src="icons/order-icon.png" alt="order Icon"></span> Orders</a></li>
+                    <li><a href="inbox.html" class="menu-link"><span class="menu-icon"><img class="icons"
+                                    src="icons/inbox-icon.png" alt="inbox Icon"></span> Inbox</a></li>
+                    <li><a href="wishlist.html" class="menu-link"><span class="menu-icon"><img class="icons"
+                                    src="icons/wishlist-icon.png" alt="wishlist Icon"></span> Wishlist</a></li>
+                </ul>
+            </div>
+
+            <div class="divider-light"></div>
+
+            <!-- OUR CATEGORIES (exactly matching your Jumia screenshot) -->
+            
+        </div>
+    </div>
+
+    <script>
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const menuBackdrop = document.getElementById('menuBackdrop');
+        const hamburgerIcon = document.getElementById('hamburgerIcon');
+
+        function showMenu() {
+            dropdownMenu.classList.add('open');
+            menuBackdrop.classList.add('active');
+        }
+
+        function hideMenu() {
+            dropdownMenu.classList.remove('open');
+            menuBackdrop.classList.remove('active');
+        }
+
+        menuBackdrop.addEventListener('click', hideMenu);
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <section class="contact-store-section">
+        <div class="contact-container">
+            <div class="contact-form" id="wishlist-container">
+                <h2>My Wishlist</h2>
+                <div id="wishlistStatus"></div>
+                <div id="wishlistItems"></div>
+            </div>
+
+            <div class="store-info">
+                <h2>Need Help?</h2>
+                <p>Save products for later and come back when you're ready to buy.</p>
+                <h3>Contact Information</h3>
+                <p>Phone: +254 123 456 789</p>
+                <p>Email: info@maggybazaar.com</p>
+            </div>
+        </div>
+    </section>
+
+
+    <style>
+        @media (max-width: 680px) {
+            .wishlist-item-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .wishlist-item-card > div:first-child {
+                flex-direction: column;
+                align-items: flex-start;
+                width: 100%;
+            }
+
+            .wishlist-item-card img {
+                width: 100%;
+                height: 180px;
+            }
+
+            .wishlist-item-card button {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <script>
+        const userEmail = sessionStorage.getItem('userEmail');
+        const wishlistStatus = document.getElementById('wishlistStatus');
+        const wishlistItems = document.getElementById('wishlistItems');
+
+        function showProductDetail(productId) {
+            window.location.href = `product-detail.html?id=${productId}`;
+        }
+
+
+        function removeFromWishlist(productId) {
+    if (!userEmail) {
+        alert('Please login to manage your wishlist.');
+        return;
+    }
+
+    fetch(window.apiPath('/api/wishlist/remove'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail, productId: productId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            loadWishlist();
+        } else {
+            alert(data.error || 'Failed to remove item from wishlist.');
+        }
+    })
+    .catch(error => {
+        console.error('Error removing item from wishlist:', error);
+        alert('An error occurred. Please try again later.');
+    });
+}
+
+function addToCart(productId) {
+    if (!userEmail) {
+        alert('Please login to add items to your cart.');
+        return;
+    }
+
+    fetch(window.apiPath('/api/cart/add'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail, productId: productId, quantity: 1 })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert('Item added to cart successfully!');
+        } else {
+            alert(data.error || 'Failed to add item to cart.');
+        }
+    })
+    .catch(error => {
+        console.error('Error adding item to cart:', error);
+        alert('An error occurred. Please try again later.');
+    });
+}
+
+        function renderWishlist(product) {
+            if (!product.length) {
+                wishlistStatus.innerHTML = '<p>Your wishlist is empty.</p>';
+                wishlistItems.innerHTML = '';
+                return;
+            }
+
+            wishlistStatus.textContent = '';
+            wishlistItems.innerHTML = product.map(product => `
+            <div class="product-card wishlist-item-card" style="padding: 1rem; margin-bottom: 1rem; display:flex; gap:1rem; align-items:center;">
+                <div style="display:flex; gap:1rem; align-items:center; flex:1; min-width:0;">   
+                    <img src="${product.image}" alt="${product.name}" style="width:120px; height:120px; object-fit:cover; border-radius:12px; flex-shrink:0;">
+                    <div style="min-width:0;">
+                        <h3>${product.name}</h3>
+                        <p>${product.brand}</p>
+                        <p>KES ${product.price.toLocaleString()}</p>
+                        <p>${product.description}</p>
+                    </div>
+                </div>
+                  
+                     <div style="display: flex; gap: 0.5rem; margin-top: 0.8rem; flex-wrap: wrap;">
+                           <button class="wishlist-btn" style="flex: 1; min-width: 120px; height: fit-content;" onclick="showProductDetail(${product.id})">View Product</button>
+                           <button class="wishlist-btn" style="padding: 0.5rem; display: flex; align-items: center; justify-content: center;" onclick="removeFromWishlist(${product.id})">Remove</button>
+                           <button class="wishlist-btn" style="padding: 0.5rem; display: flex; align-items: center; justify-content: center;" onclick="addToCart(${product.id})"><img src="icons/cart3.png" alt="Add to Cart" style="width: 20px; height: 20px;"></button>
+                       </div>
+
+                </div>
+            </div>
+            `).join('');
+        }
+
+        async function loadWishlist() {
+            if (!userEmail) {
+                wishlistStatus.innerHTML = '<p>Please <a href="login.html">login</a> to view your wishlist.</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(window.apiPath(`/api/wishlist/${encodeURIComponent(userEmail)}`));
+                const data = await response.json();
+                if (!response.ok) {
+                    wishlistStatus.textContent = data.error || 'Unable to load wishlist.';
+                    return;
+                }
+                renderWishlist(data);
+            } catch (error) {
+                wishlistStatus.textContent = 'Unable to load wishlist. Please try again later.';
+                console.error(error);
+            }
+        }
+
+        loadWishlist();
+    </script>
+
+    <footer>
+        &copy; 2026 Maggy Bazaar. All rights reserved.
+    </footer>
+</body>
+
+</html>

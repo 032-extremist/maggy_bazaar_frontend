@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
+    <script src="header.js" defer></script>
+    <style>
+        /* ── Shipping Modal ───────────────────────────────── */
+        #shipping-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9998;
+            align-items: center;
+            justify-content: center;
+        }
+        #shipping-overlay.active { display: flex; }
+
+        #shipping-modal {
+            background: #fff;
+            border-radius: 14px;
+            padding: 28px 24px 24px;
+            width: 92%;
+            max-width: 420px;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.18);
+            position: relative;
+            font-family: inherit;
+        }
+
+        #shipping-modal .s-close {
+            position: absolute;
+            top: 12px; right: 14px;
+            background: none; border: none;
+            font-size: 1.3rem; color: #999;
+            cursor: pointer; line-height: 1;
+        }
+        #shipping-modal .s-close:hover { color: #333; }
+
+        .s-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin: 0 0 4px;
+        }
+        .s-subtitle {
+            font-size: 0.82rem;
+            color: #a0aec0;
+            margin: 0 0 18px;
+        }
+
+        .s-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .s-fields input {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1.5px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #1a202c;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .s-fields input:focus { border-color: #3bb54a; }
+
+        .s-proceed-btn {
+            margin-top: 18px;
+            width: 100%;
+            padding: 12px;
+            background: #3bb54a;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.97rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .s-proceed-btn:hover { background: #2ea03c; }
+
+        /* ── M-Pesa Modal ─────────────────────────────── */
+        #mpesa-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        #mpesa-overlay.active { display: flex; }
+
+        #mpesa-modal {
+            background: #fff;
+            border-radius: 14px;
+            padding: 28px 24px 24px;
+            width: 92%;
+            max-width: 400px;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.18);
+            position: relative;
+            font-family: inherit;
+        }
+
+        #mpesa-modal .m-close {
+            position: absolute;
+            top: 12px; right: 14px;
+            background: none; border: none;
+            font-size: 1.3rem; color: #999;
+            cursor: pointer; line-height: 1;
+        }
+        #mpesa-modal .m-close:hover { color: #333; }
+
+        .m-brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 18px;
+        }
+        .m-brand-icon {
+            width: 34px; height: 34px;
+            background: #3bb54a;
+            border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; font-weight: 800; color: #fff;
+        }
+        .m-brand-name { font-size: 1.1rem; font-weight: 700; color: #3bb54a; }
+
+        .m-heading { font-size: 0.95rem; color: #4a5568; margin: 0 0 2px; }
+        .m-amount  { font-size: 1.6rem; font-weight: 700; color: #1a202c; margin: 0 0 20px; }
+
+        #mpesa-form-area label {
+            display: block;
+            font-size: 0.82rem; font-weight: 600;
+            color: #4a5568; margin-bottom: 5px;
+        }
+        #mpesa-form-area input[type="tel"] {
+            width: 100%; padding: 11px 13px;
+            border: 1.5px solid #cbd5e0;
+            border-radius: 8px; font-size: 1rem;
+            color: #1a202c; outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        #mpesa-form-area input[type="tel"]:focus { border-color: #3bb54a; }
+        .m-hint { font-size: 0.76rem; color: #a0aec0; margin: 4px 0 18px; }
+
+        .m-pay-btn {
+            width: 100%; padding: 12px;
+            background: #3bb54a; color: #fff;
+            border: none; border-radius: 8px;
+            font-size: 0.97rem; font-weight: 700;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .m-pay-btn:hover:not(:disabled) { background: #2ea03c; }
+        .m-pay-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        #mpesa-status-area { display: none; text-align: center; padding: 8px 0 4px; }
+        #mpesa-status-area.active { display: block; }
+
+        .m-spinner {
+            width: 42px; height: 42px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #3bb54a;
+            border-radius: 50%;
+            animation: mspin 0.8s linear infinite;
+            margin: 0 auto 14px;
+        }
+        @keyframes mspin { to { transform: rotate(360deg); } }
+
+        #mpesa-status-area p { color: #4a5568; font-size: 0.92rem; margin: 0 0 5px; }
+        #mpesa-status-area .m-sub { font-size: 0.8rem; color: #a0aec0; }
+
+        .m-icon-circle {
+            width: 48px; height: 48px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 14px;
+        }
+        .m-icon-circle.success { background: #3bb54a; }
+        .m-icon-circle.error   { background: #e53e3e; }
+
+        .m-action-btn {
+            margin-top: 14px; width: 100%;
+            padding: 10px; border-radius: 8px;
+            font-size: 0.93rem; font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid #cbd5e0;
+            background: #fff; color: #2d3748;
+            transition: background 0.15s;
+        }
+        .m-action-btn:hover { background: #f7f9fc; }
+        .m-action-btn.primary {
+            background: #3bb54a; color: #fff; border-color: #3bb54a;
+        }
+        .m-action-btn.primary:hover { background: #2ea03c; }
+    </style>
+</head>
+
+<body>
+    <div class="site-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-logo">M</div>
+                <div class="brand-name">MAGGY BAZAAR</div>
+            </div>
+
+            <div class="search-area">
+                <div class="search-wrapper">
+                    <input id="search-input" type="text" placeholder="Search products…" autocomplete="off">
+                    <div id="search-results"></div>
+                </div>
+            </div>
+
+            <script src="search.js"></script>
+
+            <div class="nav-icons-container">
+                <div class="nav-icon-btn">
+                    <a href="home.html"><img src="icons/home-icon.png" alt="Home Icon"></a>
+                </div>
+                <div class="nav-icon-btn">
+                    <a href="account.html"><img src="icons/account-icon.png" alt="Account Icon"></a>
+                </div>
+                <div class="nav-icon-btn">
+                    <a href="cart.html"><img src="icons/cart-icon.png" alt="Cart Icon"></a>
+                    <div class="cart-badge" id="cartBadge">0</div>
+                </div>
+            </div>
+
+            <button class="hamburger-btn nav-icon-btn" onclick="showMenu()" id="hamburgerIcon" aria-label="Menu">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </button>
+        </div>
+    </div>
+
+    <div class="menu-backdrop" id="menuBackdrop"></div>
+
+    <div class="dropdown-nav" id="dropdownMenu">
+        <div class="dropdown-inner">
+            <div class="menu-group">
+                <div class="group-title">MY MG-B ACCOUNT</div>
+                <ul class="dropdown-links-list">
+                    <li><a href="orders.html" class="menu-link"><span class="menu-icon"><img class="icons" src="icons/order-icon.png" alt="order Icon"></span> Orders</a></li>
+                    <li><a href="inbox.html" class="menu-link"><span class="menu-icon"><img class="icons" src="icons/inbox-icon.png" alt="inbox Icon"></span> Inbox</a></li>
+                    <li><a href="wishlist.html" class="menu-link"><span class="menu-icon"><img class="icons" src="icons/wishlist-icon.png" alt="wishlist Icon"></span> Wishlist</a></li>
+                </ul>
+            </div>
+            <div class="divider-light"></div>
+        </div>
+    </div>
+
+    <script>
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const menuBackdrop = document.getElementById('menuBackdrop');
+        const hamburgerIcon = document.getElementById('hamburgerIcon');
+
+        function showMenu() {
+            dropdownMenu.classList.add('open');
+            menuBackdrop.classList.add('active');
+        }
+        function hideMenu() {
+            dropdownMenu.classList.remove('open');
+            menuBackdrop.classList.remove('active');
+        }
+        menuBackdrop.addEventListener('click', hideMenu);
+    </script>
+
+    <section class="contact-store-section">
+        <div class="contact-container">
+            <div class="contact-form" id="cart-container">
+                <h2>My Cart</h2>
+                <div id="cartStatus"></div>
+                <div id="cartItems"></div>
+                <div id="cartTotal" style="margin-top: 1rem; font-weight: 700;"></div>
+                <button id="checkoutBtn" class="btn-primary" style="display:none; margin-top: 1rem;">Checkout</button>
+            </div>
+
+            <div class="store-info">
+                <h2>Need Help?</h2>
+                <p>Review your cart items and complete your order quickly.</p>
+                <h3>Contact Information</h3>
+                <p>Phone: +254 123 456 789</p>
+                <p>Email: info@maggybazaar.com</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Shipping Modal ── -->
+   <!-- ── Shipping Modal ── -->
+<div id="shipping-overlay">
+  <div style="background:#fff; border-radius:14px; padding:28px 24px 24px; width:92%; max-width:420px; box-shadow:0 16px 48px rgba(0,0,0,0.18); position:relative;">
+    <button onclick="closeShippingModal()" style="position:absolute; top:12px; right:14px; background:none; border:none; font-size:1.3rem; color:#999; cursor:pointer;">&#x2715;</button>
+
+    <h3 style="margin:0 0 4px; font-size:1.1rem; color:#1a202c;">Shipping Details</h3>
+    <p style="margin:0 0 18px; font-size:0.82rem; color:#a0aec0;">Where should we deliver your order?</p>
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <input id="ship-name" placeholder="Full name" style="padding:11px 13px; border:1.5px solid #cbd5e0; border-radius:8px; font-size:1rem; outline:none; box-sizing:border-box;">
+      <input id="ship-phone" placeholder="Phone number e.g. 0712 345 678" style="padding:11px 13px; border:1.5px solid #cbd5e0; border-radius:8px; font-size:1rem; outline:none; box-sizing:border-box;">
+
+      <select id="ship-county" onchange="onCountyChange()" style="padding:11px 13px; border:1.5px solid #cbd5e0; border-radius:8px; font-size:1rem; background:#fff; color:#1a202c;">
+        <option value="">Select county...</option>
+      </select>
+
+      <select id="ship-town" onchange="onTownChange()" disabled style="padding:11px 13px; border:1.5px solid #cbd5e0; border-radius:8px; font-size:1rem; background:#fff; color:#1a202c; opacity:0.5; cursor:not-allowed;">
+        <option value="">Select town...</option>
+      </select>
+
+      <div>
+        <select id="ship-station" disabled style="padding:11px 13px; border:1.5px solid #cbd5e0; border-radius:8px; font-size:1rem; background:#fff; color:#1a202c; width:100%; box-sizing:border-box; opacity:0.5; cursor:not-allowed;">
+          <option value="">Select drop station...</option>
+        </select>
+        <p style="font-size:0.75rem; color:#a0aec0; margin:4px 0 0;">Your order will be held here for pickup or last-mile delivery.</p>
+      </div>
+    </div>
+
+    <button onclick="proceedToPayment()" style="margin-top:18px; width:100%; padding:12px; background:#3bb54a; color:#fff; border:none; border-radius:8px; font-size:0.97rem; font-weight:700; cursor:pointer;">
+      Proceed to Payment
+    </button>
+  </div>
+</div>
+    <!-- ── M-Pesa Modal ── -->
+    <div id="mpesa-overlay">
+        <div id="mpesa-modal" role="dialog" aria-modal="true">
+            <button class="m-close" onclick="closeMpesaModal()" aria-label="Close">&#x2715;</button>
+
+            <div class="m-brand">
+                <div class="m-brand-icon">M</div>
+                <span class="m-brand-name">M-Pesa</span>
+            </div>
+
+            <div id="mpesa-form-area">
+                <p class="m-heading">Amount to pay</p>
+                <p class="m-amount" id="m-display-amount">KES 0</p>
+
+                <label for="mpesa-phone">M-Pesa phone number</label>
+                <input type="tel" id="mpesa-phone" placeholder="e.g. 0712 345 678" maxlength="13" autocomplete="tel" />
+                <p class="m-hint">Safaricom number registered for M-Pesa.</p>
+
+                <button class="m-pay-btn" onclick="submitMpesaPayment()">
+                    Pay KES <span id="m-btn-amount">0</span>
+                </button>
+            </div>
+
+            <div id="mpesa-status-area"></div>
+        </div>
+    </div>
+
+    <style>
+        @media (max-width: 680px) {
+            .cart-item-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .cart-item-card > div {
+                flex-direction: column;
+                align-items: flex-start;
+                width: 100%;
+            }
+
+            .cart-item-card img {
+                width: 100%;
+                height: 180px;
+            }
+
+            .cart-item-card button {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <script>
+        const userEmail   = sessionStorage.getItem('userEmail');
+        const cartStatus  = document.getElementById('cartStatus');
+        const cartItemsEl = document.getElementById('cartItems');
+        const cartTotal   = document.getElementById('cartTotal');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+
+        let _currentTotal    = 0;
+        let _shippingDetails = null;
+
+        // ── Cart ──────────────────────────────────────────────
+
+        async function loadCart() {
+            if (!userEmail) {
+                cartStatus.innerHTML = '<p>Please <a href="login.html">login</a> to view your cart.</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(window.apiPath(`/api/cart/${encodeURIComponent(userEmail)}`));
+                const data = await response.json();
+                if (!response.ok) {
+                    cartStatus.textContent = data.error || 'Unable to load cart.';
+                    return;
+                }
+
+                if (!data.length) {
+                    cartStatus.innerHTML = '<p>Your cart is empty.</p>';
+                    checkoutBtn.style.display = 'none';
+                    cartItemsEl.innerHTML = '';
+                    cartTotal.textContent = '';
+                    _currentTotal = 0;
+                    updateCartCount([]);
+                    return;
+                }
+
+                cartStatus.textContent = '';
+                cartItemsEl.innerHTML  = '';
+                let total = 0;
+
+                data.forEach(item => {
+                    total += item.price * item.quantity;
+                    cartItemsEl.innerHTML += `
+                        <div class="product-card cart-item-card" style="padding:1rem; margin-bottom:1rem; display:flex; gap:1rem; align-items:center; justify-content:space-between;">
+                            <div style="display:flex; gap:1rem; align-items:center; flex:1; min-width:0;">
+                                <img src="${item.image}" alt="${item.name}" style="width:120px; height:120px; object-fit:cover; border-radius:12px; flex-shrink:0;">
+                                <div style="min-width:0;">
+                                    <h3>${item.name}</h3>
+                                    <p>${item.brand}</p>
+                                    <p>Qty: ${item.quantity}</p>
+                                    <p>KES ${item.price.toLocaleString()}</p>
+                                </div>
+                            </div>
+                            <button class="btn-primary" onclick="removeFromCart(${item.productId})" style="height:fit-content;">Remove</button>
+                        </div>
+                    `;
+                });
+
+                _currentTotal = total;
+                cartTotal.textContent       = `Total: KES ${total.toLocaleString()}`;
+                checkoutBtn.style.display   = 'block';
+                updateCartCount(data);
+
+            } catch (error) {
+                cartStatus.textContent = 'Unable to load cart. Please try again later.';
+                console.error(error);
+            }
+        }
+
+        async function removeFromCart(productId) {
+            const response = await fetch(window.apiPath('/api/cart/remove'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: userEmail, productId }),
+            });
+            if (!response.ok) { console.error('Unable to remove item from cart.'); return; }
+            await loadCart();
+        }
+
+        function updateCartCount(data) {
+            const badge = document.getElementById('cartBadge');
+            if (!badge) return;
+            const totalItems = data.reduce((sum, item) => sum + item.quantity, 0);
+            badge.textContent    = totalItems;
+            badge.style.display  = totalItems ? 'flex' : 'none';
+        }
+
+        // Checkout button → open shipping modal first
+        checkoutBtn.addEventListener('click', openShippingModal);
+        loadCart();
+
+        // ── Shipping Modal ────────────────────────────────────
+
+        function openShippingModal() {
+            document.getElementById('shipping-overlay').classList.add('active');
+            setTimeout(() => document.getElementById('ship-name').focus(), 50);
+        }
+
+        function closeShippingModal() {
+            document.getElementById('shipping-overlay').classList.remove('active');
+        }
+
+        // Close shipping modal when clicking backdrop
+        document.getElementById('shipping-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeShippingModal();
+        });
+
+        function proceedToPayment() {
+            const name        = document.getElementById('ship-name').value.trim();
+            const phone       = document.getElementById('ship-phone').value.trim();
+            const county      = document.getElementById('ship-county').value.trim();
+            const town        = document.getElementById('ship-town').value.trim();
+            const dropStation = document.getElementById('ship-station').value.trim();
+
+            if (!name || !phone || !county || !town || !dropStation) {
+                alert('Please fill in all shipping details.');
+                return;
+            }
+
+            _shippingDetails = {
+                full_name:    name,
+                phone,
+                county,
+                town,
+                drop_station: dropStation,
+                address:      dropStation   // kept for backwards compatibility
+            };
+            closeShippingModal();
+            openMpesaModal();
+        }
+
+        // ── Shipping cascade data ─────────────────────────────
+
+        const SHIPPING_DATA = {
+            "Nairobi": {
+                "Nairobi CBD": ["GPO Drop Point", "Archives Drop Point", "City Hall Drop Point"],
+                "Westlands":  ["Sarit Centre Drop Point", "Westgate Drop Point", "ABC Place Drop Point"],
+                "Kasarani":   ["Kasarani Stadium Drop Point", "Thika Road Mall Drop Point"],
+                "Embakasi":   ["Greenspan Mall Drop Point", "Pipeline Drop Point", "Imara Daima Drop Point"],
+                "Langata":    ["Junction Mall Drop Point", "Rongai Drop Point"],
+                "Kikuyu":     ["Kikuyu Town Drop Point", "Ondiri Drop Point"]
+            },
+            "Mombasa": {
+                "Mombasa Island": ["Mombasa GPO Drop Point", "Old Town Drop Point"],
+                "Nyali":          ["Nyali Centre Drop Point", "Nakumatt Nyali Drop Point"],
+                "Likoni":         ["Likoni Drop Point"],
+                "Bamburi":        ["Bamburi Drop Point", "Reef Hotel Drop Point"]
+            },
+            "Kisumu": {
+                "Kisumu CBD":  ["Kisumu GPO Drop Point", "Mega City Drop Point"],
+                "Kondele":     ["Kondele Drop Point"],
+                "Milimani":    ["Milimani Drop Point", "Aga Khan Drop Point"]
+            },
+            "Nakuru": {
+                "Nakuru Town": ["Nakuru GPO Drop Point", "West Side Mall Drop Point"],
+                "Naivasha":    ["Naivasha Drop Point", "Hell's Gate Drop Point"],
+                "Gilgil":      ["Gilgil Drop Point"]
+            },
+            "Kiambu": {
+                "Thika":      ["Thika Town Drop Point", "Blue Post Drop Point"],
+                "Ruiru":      ["Ruiru Drop Point", "Membley Drop Point"],
+                "Limuru":     ["Limuru Drop Point"],
+                "Githunguri": ["Githunguri Drop Point"]
+            },
+            "Machakos": {
+                "Machakos Town": ["Machakos Drop Point", "Makueni Drop Point"],
+                "Athi River":    ["Athi River Drop Point", "EPZ Drop Point"],
+                "Kitui":         ["Kitui Drop Point"]
+            },
+            "Eldoret": {
+                "Eldoret Town": ["Eldoret GPO Drop Point", "Westmart Drop Point"],
+                "Turbo":        ["Turbo Drop Point"],
+                "Burnt Forest": ["Burnt Forest Drop Point"]
+            },
+            "Nyeri": {
+                "Nyeri Town":  ["Nyeri GPO Drop Point", "Outspan Drop Point"],
+                "Karatina":    ["Karatina Drop Point"],
+                "Othaya":      ["Othaya Drop Point"]
+            },
+            "Baringo": {
+    "Kabarnet":     ["Kabarnet GPO Drop Point", "Kabarnet Town Drop Point"],
+    "Eldama Ravine": ["Eldama Ravine Drop Point", "Mogotio Drop Point"],
+    "Marigat":      ["Marigat Drop Point", "Lake Bogoria Drop Point"]
+},
+
+"Bomet": {
+    "Bomet Town": ["Bomet GPO Drop Point", "Bomet Town Drop Point"],
+    "Sotik":      ["Sotik Drop Point", "Mulot Drop Point"],
+    "Longisa":    ["Longisa Drop Point"]
+},
+
+"Bungoma": {
+    "Bungoma Town": ["Bungoma GPO Drop Point", "Bungoma Town Drop Point"],
+    "Webuye":       ["Webuye Drop Point", "Pan Paper Drop Point"],
+    "Kimilili":     ["Kimilili Drop Point"],
+    "Sirisia":      ["Sirisia Drop Point"]
+},
+
+"Busia": {
+    "Busia Town":  ["Busia GPO Drop Point", "Busia Border Drop Point"],
+    "Malaba":      ["Malaba Drop Point", "Malaba Border Drop Point"],
+    "Nambale":     ["Nambale Drop Point"],
+    "Funyula":     ["Funyula Drop Point"]
+},
+
+"Elgeyo-Marakwet": {
+    "Iten":        ["Iten Drop Point", "Iten GPO Drop Point"],
+    "Eldoret":     ["Chepkorio Drop Point"],
+    "Kamariny":    ["Kamariny Drop Point"]
+},
+
+"Embu": {
+    "Embu Town":  ["Embu GPO Drop Point", "Embu Town Drop Point", "Embu Mall Drop Point"],
+    "Runyenjes":  ["Runyenjes Drop Point"],
+    "Mbeere":     ["Siakago Drop Point", "Ishiara Drop Point"]
+},
+
+"Garissa": {
+    "Garissa Town": ["Garissa GPO Drop Point", "Garissa Town Drop Point"],
+    "Dadaab":       ["Dadaab Drop Point"],
+    "Ijara":        ["Ijara Drop Point"]
+},
+
+"Homa Bay": {
+    "Homa Bay Town": ["Homa Bay GPO Drop Point", "Homa Bay Town Drop Point"],
+    "Rongo":         ["Rongo Drop Point"],
+    "Ndhiwa":        ["Ndhiwa Drop Point"],
+    "Mbita":         ["Mbita Drop Point", "Rusinga Island Drop Point"]
+},
+
+"Isiolo": {
+    "Isiolo Town":  ["Isiolo GPO Drop Point", "Isiolo Town Drop Point"],
+    "Merti":        ["Merti Drop Point"],
+    "Garbatulla":   ["Garbatulla Drop Point"]
+},
+
+"Kajiado": {
+    "Kajiado Town": ["Kajiado GPO Drop Point", "Kajiado Town Drop Point"],
+    "Ngong":        ["Ngong Town Drop Point", "Ngong GPO Drop Point"],
+    "Kitengela":    ["Kitengela Drop Point", "Athi Plains Drop Point"],
+    "Namanga":      ["Namanga Drop Point", "Namanga Border Drop Point"],
+    "Loitokitok":   ["Loitokitok Drop Point"]
+},
+
+"Kakamega": {
+    "Kakamega Town": ["Kakamega GPO Drop Point", "Kakamega Town Drop Point", "Mega Mall Drop Point"],
+    "Mumias":        ["Mumias Drop Point"],
+    "Lugari":        ["Lugari Drop Point"],
+    "Malava":        ["Malava Drop Point"]
+},
+
+"Kericho": {
+    "Kericho Town": ["Kericho GPO Drop Point", "Kericho Town Drop Point"],
+    "Litein":       ["Litein Drop Point"],
+    "Londiani":     ["Londiani Drop Point"],
+    "Kipkelion":    ["Kipkelion Drop Point"]
+},
+
+"Kilifi": {
+    "Kilifi Town":  ["Kilifi GPO Drop Point", "Kilifi Town Drop Point"],
+    "Malindi":      ["Malindi GPO Drop Point", "Malindi Town Drop Point"],
+    "Watamu":       ["Watamu Drop Point"],
+    "Kaloleni":     ["Kaloleni Drop Point"],
+    "Mariakani":    ["Mariakani Drop Point"]
+},
+
+"Kirinyaga": {
+    "Kerugoya":     ["Kerugoya GPO Drop Point", "Kerugoya Town Drop Point"],
+    "Sagana":       ["Sagana Drop Point"],
+    "Mwea":         ["Mwea Drop Point", "Thiba Drop Point"],
+    "Kagio":        ["Kagio Drop Point"]
+},
+
+"Kisii": {
+    "Kisii Town":   ["Kisii GPO Drop Point", "Kisii Town Drop Point", "Skyline Drop Point"],
+    "Ogembo":       ["Ogembo Drop Point"],
+    "Masimba":      ["Masimba Drop Point"],
+    "Nyamache":     ["Nyamache Drop Point"]
+},
+
+"Kitui": {
+    "Kitui Town":   ["Kitui GPO Drop Point", "Kitui Town Drop Point"],
+    "Mutomo":       ["Mutomo Drop Point"],
+    "Mwingi":       ["Mwingi Drop Point"],
+    "Kibwezi":      ["Kibwezi Drop Point"]
+},
+
+"Kwale": {
+    "Kwale Town":   ["Kwale GPO Drop Point", "Kwale Town Drop Point"],
+    "Ukunda":       ["Ukunda Drop Point", "Diani Drop Point"],
+    "Msambweni":    ["Msambweni Drop Point"],
+    "Lungalunga":   ["Lungalunga Drop Point", "Lungalunga Border Drop Point"]
+},
+
+"Laikipia": {
+    "Nanyuki":      ["Nanyuki GPO Drop Point", "Nanyuki Town Drop Point"],
+    "Rumuruti":     ["Rumuruti Drop Point"],
+    "Nyahururu":    ["Nyahururu Drop Point", "Thomson Falls Drop Point"]
+},
+
+"Lamu": {
+    "Lamu Town":    ["Lamu GPO Drop Point", "Lamu Island Drop Point"],
+    "Mokowe":       ["Mokowe Drop Point"],
+    "Mpeketoni":    ["Mpeketoni Drop Point"],
+    "Hindi":        ["Hindi Drop Point"]
+},
+
+"Machakos": {    // extending existing entry — merge these towns into your current Machakos object
+    "Kangundo":     ["Kangundo Drop Point"],
+    "Matuu":        ["Matuu Drop Point"],
+    "Tala":         ["Tala Drop Point"],
+    "Wote":         ["Wote Drop Point"]
+},
+
+"Makueni": {
+    "Wote":         ["Wote GPO Drop Point", "Wote Town Drop Point"],
+    "Sultan Hamud": ["Sultan Hamud Drop Point"],
+    "Emali":        ["Emali Drop Point"],
+    "Mtito Andei":  ["Mtito Andei Drop Point"]
+},
+
+"Mandera": {
+    "Mandera Town": ["Mandera GPO Drop Point", "Mandera Town Drop Point"],
+    "Elwak":        ["Elwak Drop Point"],
+    "Rhamu":        ["Rhamu Drop Point"]
+},
+
+"Marsabit": {
+    "Marsabit Town": ["Marsabit GPO Drop Point", "Marsabit Town Drop Point"],
+    "Moyale":        ["Moyale Drop Point", "Moyale Border Drop Point"],
+    "Laisamis":      ["Laisamis Drop Point"]
+},
+
+"Meru": {
+    "Meru Town":    ["Meru GPO Drop Point", "Meru Town Drop Point", "Meru Mall Drop Point"],
+    "Nkubu":        ["Nkubu Drop Point"],
+    "Timau":        ["Timau Drop Point"],
+    "Chuka":        ["Chuka Drop Point"],
+    "Maua":         ["Maua Drop Point"]
+},
+
+"Migori": {
+    "Migori Town":  ["Migori GPO Drop Point", "Migori Town Drop Point"],
+    "Isebania":     ["Isebania Drop Point", "Isebania Border Drop Point"],
+    "Kehancha":     ["Kehancha Drop Point"],
+    "Awendo":       ["Awendo Drop Point"]
+},
+
+"Murang'a": {
+    "Murang'a Town": ["Murang'a GPO Drop Point", "Murang'a Town Drop Point"],
+    "Kangema":       ["Kangema Drop Point"],
+    "Maragua":       ["Maragua Drop Point"],
+    "Kandara":       ["Kandara Drop Point"],
+    "Kenol":         ["Kenol Drop Point"]
+},
+
+"Narok": {
+    "Narok Town":    ["Narok GPO Drop Point", "Narok Town Drop Point"],
+    "Kilgoris":      ["Kilgoris Drop Point"],
+    "Bomet":         ["Ntimaru Drop Point"],
+    "Ewaso Ngiro":   ["Ewaso Drop Point"]
+},
+
+"Nandi": {
+    "Kapsabet":      ["Kapsabet GPO Drop Point", "Kapsabet Town Drop Point"],
+    "Nandi Hills":   ["Nandi Hills Drop Point"],
+    "Mosoriot":      ["Mosoriot Drop Point"],
+    "Kabiyet":       ["Kabiyet Drop Point"]
+},
+
+"Nairobi": {   // extending your existing entry — merge these additional towns
+    "Dagoretti":     ["Waithaka Drop Point", "Rongai Drop Point"],
+    "Starehe":       ["River Road Drop Point", "Ngara Drop Point"],
+    "Roysambu":      ["Roysambu Drop Point", "Garden City Drop Point"],
+    "Ruaraka":       ["Ruaraka Drop Point", "Baba Dogo Drop Point"]
+},
+
+"Nyandarua": {
+    "Ol Kalou":      ["Ol Kalou GPO Drop Point", "Ol Kalou Town Drop Point"],
+    "Nyahururu":     ["Nyahururu Drop Point"],
+    "Engineer":      ["Engineer Drop Point"],
+    "Ndaragua":      ["Ndaragua Drop Point"]
+},
+
+"Nyamira": {
+    "Nyamira Town":  ["Nyamira GPO Drop Point", "Nyamira Town Drop Point"],
+    "Keroka":        ["Keroka Drop Point"],
+    "Nyansiongo":    ["Nyansiongo Drop Point"]
+},
+
+"Samburu": {
+    "Maralal":       ["Maralal GPO Drop Point", "Maralal Town Drop Point"],
+    "Baragoi":       ["Baragoi Drop Point"],
+    "Wamba":         ["Wamba Drop Point"]
+},
+
+"Siaya": {
+    "Siaya Town":    ["Siaya GPO Drop Point", "Siaya Town Drop Point"],
+    "Ugunja":        ["Ugunja Drop Point"],
+    "Yala":          ["Yala Drop Point"],
+    "Bondo":         ["Bondo Drop Point"]
+},
+
+"Taita-Taveta": {
+    "Voi":           ["Voi GPO Drop Point", "Voi Town Drop Point"],
+    "Wundanyi":      ["Wundanyi Drop Point"],
+    "Taveta":        ["Taveta Drop Point", "Taveta Border Drop Point"],
+    "Mwatate":       ["Mwatate Drop Point"]
+},
+
+"Tana River": {
+    "Hola":          ["Hola GPO Drop Point", "Hola Town Drop Point"],
+    "Garsen":        ["Garsen Drop Point"],
+    "Bura":          ["Bura Drop Point"]
+},
+
+"Tharaka-Nithi": {
+    "Chuka":         ["Chuka GPO Drop Point", "Chuka Town Drop Point"],
+    "Marimanti":     ["Marimanti Drop Point"],
+    "Kathwana":      ["Kathwana Drop Point"]
+},
+
+"Trans-Nzoia": {
+    "Kitale":        ["Kitale GPO Drop Point", "Kitale Town Drop Point", "Kitale Mall Drop Point"],
+    "Endebess":      ["Endebess Drop Point"],
+    "Saboti":        ["Saboti Drop Point"],
+    "Kiminini":      ["Kiminini Drop Point"]
+},
+
+"Turkana": {
+    "Lodwar":        ["Lodwar GPO Drop Point", "Lodwar Town Drop Point"],
+    "Kakuma":        ["Kakuma Drop Point"],
+    "Lokichogio":    ["Lokichogio Drop Point"]
+},
+
+"Uasin Gishu": {   // this is your existing "Eldoret" entry renamed — use this key instead
+    "Eldoret Town":  ["Eldoret GPO Drop Point", "Westmart Drop Point", "Langas Drop Point"],
+    "Turbo":         ["Turbo Drop Point"],
+    "Burnt Forest":  ["Burnt Forest Drop Point"],
+    "Moiben":        ["Moiben Drop Point"]
+},
+
+"Vihiga": {
+    "Vihiga Town":   ["Vihiga GPO Drop Point", "Vihiga Town Drop Point"],
+    "Mbale":         ["Mbale Drop Point"],
+    "Hamisi":        ["Hamisi Drop Point"],
+    "Luanda":        ["Luanda Drop Point"]
+},
+
+"Wajir": {
+    "Wajir Town":    ["Wajir GPO Drop Point", "Wajir Town Drop Point"],
+    "Habaswein":     ["Habaswein Drop Point"],
+    "Buna":          ["Buna Drop Point"]
+},
+
+"West Pokot": {
+    "Kapenguria":    ["Kapenguria GPO Drop Point", "Kapenguria Town Drop Point"],
+    "Lodwar":        ["West Pokot Lodwar Drop Point"],
+    "Sigor":         ["Sigor Drop Point"],
+    "Alale":         ["Alale Drop Point"]
+}
+
+        };
+
+        // Populate county select on page load
+        (function initCounties() {
+            const sel = document.getElementById('ship-county');
+            Object.keys(SHIPPING_DATA).sort().forEach(county => {
+                const opt = document.createElement('option');
+                opt.value = county;
+                opt.textContent = county;
+                sel.appendChild(opt);
+            });
+        })();
+
+        function onCountyChange() {
+            const county    = document.getElementById('ship-county').value;
+            const townSel   = document.getElementById('ship-town');
+            const stationSel = document.getElementById('ship-station');
+
+            // Reset downstream
+            townSel.innerHTML   = '<option value="">Select town...</option>';
+            stationSel.innerHTML = '<option value="">Select drop station...</option>';
+
+            if (!county) {
+                setSelectDisabled(townSel, true);
+                setSelectDisabled(stationSel, true);
+                return;
+            }
+
+            const towns = Object.keys(SHIPPING_DATA[county] || {}).sort();
+            towns.forEach(town => {
+                const opt = document.createElement('option');
+                opt.value = town;
+                opt.textContent = town;
+                townSel.appendChild(opt);
+            });
+
+            setSelectDisabled(townSel, false);
+            setSelectDisabled(stationSel, true);
+        }
+
+        function onTownChange() {
+            const county      = document.getElementById('ship-county').value;
+            const town        = document.getElementById('ship-town').value;
+            const stationSel  = document.getElementById('ship-station');
+
+            stationSel.innerHTML = '<option value="">Select drop station...</option>';
+
+            if (!town) {
+                setSelectDisabled(stationSel, true);
+                return;
+            }
+
+            const stations = (SHIPPING_DATA[county] || {})[town] || [];
+            stations.forEach(station => {
+                const opt = document.createElement('option');
+                opt.value = station;
+                opt.textContent = station;
+                stationSel.appendChild(opt);
+            });
+
+            setSelectDisabled(stationSel, false);
+        }
+
+        function setSelectDisabled(el, disabled) {
+            el.disabled       = disabled;
+            el.style.opacity  = disabled ? '0.5' : '1';
+            el.style.cursor   = disabled ? 'not-allowed' : 'pointer';
+        }
+
+        // ── M-Pesa Modal ──────────────────────────────────────
+
+        function openMpesaModal() {
+            document.getElementById('m-display-amount').textContent = 'KES ' + _currentTotal.toLocaleString();
+            document.getElementById('m-btn-amount').textContent     = _currentTotal.toLocaleString();
+            showMpesaForm();
+            document.getElementById('mpesa-overlay').classList.add('active');
+            setTimeout(() => document.getElementById('mpesa-phone').focus(), 50);
+        }
+
+        function closeMpesaModal() {
+            document.getElementById('mpesa-overlay').classList.remove('active');
+        }
+
+        document.getElementById('mpesa-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeMpesaModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMpesaModal();
+                closeShippingModal();
+            }
+        });
+
+        function showMpesaForm() {
+            document.getElementById('mpesa-form-area').style.display = 'block';
+            const s = document.getElementById('mpesa-status-area');
+            s.classList.remove('active');
+            s.innerHTML = '';
+            document.getElementById('mpesa-phone').value = '';
+        }
+
+        function showMpesaStatus(html) {
+            document.getElementById('mpesa-form-area').style.display = 'none';
+            const s = document.getElementById('mpesa-status-area');
+            s.innerHTML = html;
+            s.classList.add('active');
+        }
+
+        function normalizePhone(raw) {
+            let p = raw.replace(/\s+/g, '').replace(/-/g, '');
+            if (p.startsWith('0'))  p = '254' + p.slice(1);
+            if (p.startsWith('+')) p = p.slice(1);
+            return p;
+        }
+
+        async function submitMpesaPayment() {
+            const rawPhone = document.getElementById('mpesa-phone').value.trim();
+            if (!rawPhone) { document.getElementById('mpesa-phone').focus(); return; }
+
+            const phone = normalizePhone(rawPhone);
+            if (!/^254(7\d{8}|1\d{8})$/.test(phone)) {
+                alert('Please enter a valid Safaricom number, e.g. 0712 345 678 or 0114 237 838');
+                return;
+            }
+
+            if (_currentTotal <= 0) return;
+
+            showMpesaStatus(`
+                <div class="m-spinner"></div>
+                <p>Check your phone</p>
+                <p class="m-sub">Enter your M-Pesa PIN on the prompt sent to ${rawPhone}</p>
+            `);
+
+            try {
+                const res = await fetch(window.apiPath('/api/mpesa/stkpush'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone,
+                        amount:   _currentTotal,
+                        email:    userEmail,
+                        shipping: _shippingDetails
+                    })
+                });
+                const data = await res.json();
+
+                if (!res.ok || data.error) {
+                    showMpesaStatus(`
+                        <div class="m-icon-circle error">
+                            <svg width="22" height="22" fill="none" stroke="white" stroke-width="3" viewBox="0 0 24 24">
+                                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </div>
+                        <p style="color:#e53e3e;font-weight:600;">Payment failed</p>
+                        <p class="m-sub">${data.error || 'Could not initiate payment. Please try again.'}</p>
+                        <button class="m-action-btn" onclick="showMpesaForm()">Try again</button>
+                    `);
+                    return;
+                }
+
+                pollPaymentStatus(data.CheckoutRequestID, rawPhone);
+
+            } catch (err) {
+                showMpesaStatus(`
+                    <div class="m-icon-circle error">
+                        <svg width="22" height="22" fill="none" stroke="white" stroke-width="3" viewBox="0 0 24 24">
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </div>
+                    <p style="color:#e53e3e;font-weight:600;">Connection error</p>
+                    <p class="m-sub">Check your connection and try again.</p>
+                    <button class="m-action-btn" onclick="showMpesaForm()">Try again</button>
+                `);
+            }
+        }
+
+        async function pollPaymentStatus(checkoutRequestId, displayPhone) {
+            const maxAttempts = 20;
+            let attempts = 0;
+
+            const poll = async () => {
+                attempts++;
+                try {
+                    const res  = await fetch(window.apiPath(`/api/mpesa/status?checkout_request_id=${encodeURIComponent(checkoutRequestId)}`));
+                    const data = await res.json();
+
+                    if (data.status === 'success') {
+                        showMpesaStatus(`
+                            <div class="m-icon-circle success">
+                                <svg width="24" height="24" fill="none" stroke="white" stroke-width="3" viewBox="0 0 24 24">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                            </div>
+                            <p style="color:#3bb54a;font-weight:700;font-size:1.05rem;">Payment confirmed!</p>
+                            <p class="m-sub">KES ${_currentTotal.toLocaleString()} received from ${displayPhone}</p>
+                            ${data.receipt ? `<p class="m-sub" style="margin-top:5px;">Receipt: <strong>${data.receipt}</strong></p>` : ''}
+                            <button class="m-action-btn primary" onclick="window.location.href='orders.html'">View my orders</button>
+                        `);
+                        return;
+                    }
+
+                    if (data.status === 'failed') {
+                        showMpesaStatus(`
+                            <div class="m-icon-circle error">
+                                <svg width="22" height="22" fill="none" stroke="white" stroke-width="3" viewBox="0 0 24 24">
+                                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </div>
+                            <p style="color:#e53e3e;font-weight:600;">Payment not completed</p>
+                            <p class="m-sub">The STK push was cancelled or timed out.</p>
+                            <button class="m-action-btn" onclick="showMpesaForm()">Try again</button>
+                        `);
+                        return;
+                    }
+
+                    if (attempts < maxAttempts) {
+                        setTimeout(poll, 3000);
+                    } else {
+                        showMpesaStatus(`
+                            <p style="color:#dd6b20;font-weight:600;">Taking longer than expected</p>
+                            <p class="m-sub">If you completed the payment, your order will appear in Orders shortly.</p>
+                            <button class="m-action-btn primary" onclick="window.location.href='orders.html'">Go to Orders</button>
+                            <button class="m-action-btn" style="margin-top:8px" onclick="showMpesaForm()">Try again</button>
+                        `);
+                    }
+                } catch (err) {
+                    if (attempts < maxAttempts) setTimeout(poll, 3000);
+                }
+            };
+
+            setTimeout(poll, 3000);
+        }
+    </script>
+
+    <script>
+        document.querySelectorAll('[data-page]').forEach(link => {
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const page = e.target.dataset.page;
+                const response = await fetch(`${page}.html`);
+                const content  = await response.text();
+                document.getElementById('page-content').innerHTML = content;
+                history.pushState({ page }, '', `/${page}`);
+            });
+        });
+        window.addEventListener('popstate', () => {});
+    </script>
+
+    <footer>
+        &copy; 2026 Maggy Bazaar. All rights reserved.
+    </footer>
+</body>
+
+</html>

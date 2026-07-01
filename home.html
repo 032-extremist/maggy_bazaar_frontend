@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Maggy Bazaar</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
+    <script src="header.js" defer></script>
+    <style>
+        /* ── Filter Bar Styles ── */
+        .filter-bar {
+            background: var(--filter-bg, #0f172a);
+            border: 1px solid var(--filter-border, rgba(255,255,255,0.08));
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin: 0 0 1.5rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: flex-end;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 140px;
+            flex: 1;
+        }
+        .filter-group label {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--filter-label, rgba(255,255,255,0.45));
+        }
+        .filter-group select,
+        .filter-group input[type="number"] {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            color: var(--filter-text, #f1f5f9);
+            padding: 0.45rem 0.7rem;
+            font-size: 13px;
+            height: 36px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .filter-group select:focus,
+        .filter-group input[type="number"]:focus {
+            border-color: #02F5A1;
+        }
+        .filter-group select option {
+            background: #1e293b;
+            color: #f1f5f9;
+        }
+        .filter-price-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .filter-price-row input {
+            flex: 1;
+        }
+        .filter-price-sep {
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .filter-stock-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 2px;
+        }
+        .filter-stock-group label {
+            font-size: 13px;
+            color: var(--filter-text, #f1f5f9);
+            cursor: pointer;
+            text-transform: none;
+            letter-spacing: 0;
+            font-weight: 400;
+        }
+        .filter-stock-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #02F5A1;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .filter-actions {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+        .filter-actions button {
+            height: 36px;
+            padding: 0 1rem;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+        .filter-actions button:active { transform: scale(0.97); }
+        .btn-apply {
+            background: #02F5A1;
+            color: #052e16;
+        }
+        .btn-apply:hover { opacity: 0.88; }
+        .btn-reset {
+            background: rgba(255,255,255,0.08);
+            color: #f1f5f9;
+            border: 1px solid rgba(255,255,255,0.14) !important;
+        }
+        .btn-reset:hover { background: rgba(255,255,255,0.14); }
+
+        .filter-result-info {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            margin: -0.5rem 0 0.75rem 0;
+        }
+        .filter-result-info span {
+            color: #02F5A1;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .electronics-banner {
+                padding: 24px 20px;
+                min-height: 220px;
+                border-radius: 16px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .filter-group { min-width: 100%; }
+            .filter-actions { width: 100%; }
+            .filter-actions button { flex: 1; }
+            .electronics-banner {
+                padding: 20px 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="site-header">        
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-logo">M</div>
+                <div class="brand-name">MAGGY BAZAAR</div>
+            </div>
+
+        <div class="search-area">
+            <div class="search-wrapper">
+                <input id="search-input" type="text" placeholder="Search products…" autocomplete="off">
+                <div id="search-results"></div> 
+            </div> 
+        </div>
+
+            <script src="search.js"></script>
+
+            <div class="nav-icons-container">
+                <div class="nav-icon-btn">
+                    <a href="home.html">
+                        <img src="icons/home-icon.png" alt="Home Icon"></a>
+                </div>
+                <div class="nav-icon-btn">
+                    <a href="account.html">
+                        <img src="icons/account-icon.png" alt="Account Icon"></a>
+                </div>
+                <div class="nav-icon-btn">
+                    <a href="cart.html">
+                        <img src="icons/cart-icon.png" alt="Cart Icon"></a>
+                    <div class="cart-badge" id="cartBadge">0</div>
+                </div>
+                <div class="nav-icon-btn" id="adminIconBtn" style="display:none; align-items: center; justify-content: center;">
+                    <a href="admin.html">
+                        <div class="admin-icon">
+                            <img class="admin-icon" src="icons/admin-icon.png" alt="Admin Icon">
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="auth-links" id="authLinks">
+                <a href="login.html" class="btn-primary">Login</a>
+                <a href="signup.html" class="btn-primary">Sign Up</a>
+            </div>
+
+            <button class="hamburger-btn nav-icon-btn" onclick="showMenu()" id="hamburgerIcon" aria-label="Menu">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </button>
+        </div>
+    </div>
+
+    <div class="menu-backdrop" id="menuBackdrop"></div>
+
+    <div class="dropdown-nav" id="dropdownMenu">
+        <div class="dropdown-inner">
+            <div class="menu-group">
+                <div class="group-title">MY MG-B ACCOUNT</div>
+                <ul class="dropdown-links-list">
+                    <li><a href="orders.html" class="menu-link"><span class="menu-icon"><img class="icons"
+                                    src="icons/order-icon.png" alt="order Icon"></span> Orders</a></li>
+                    <li><a href="inbox.html" class="menu-link"><span class="menu-icon"><img class="icons"
+                                    src="icons/inbox-icon.png" alt="inbox Icon"></span> Inbox</a></li>
+                    <li><a href="wishlist.html" class="menu-link"><span class="menu-icon"><img class="icons"
+                                    src="icons/wishlist-icon.png" alt="wishlist Icon"></span> Wishlist</a></li>
+                </ul>
+            </div>
+            <div class="divider-light"></div>
+        </div>
+    </div>
+
+
+
+
+<!-- 
+  =============================================
+  MAGGY BAZAAR — Electronics Banner
+  Drop this <section> block into your home.html,
+  right after your <nav> or at the top of <main>.
+  The <style> block can go into your existing CSS file.
+  =============================================
+-->
+
+<style>
+  /* ── Electronics Banner ── */
+  .electronics-banner {
+    position: relative;
+    width: 100%;
+    min-height: 220px;
+    background: linear-gradient(120deg, #0a0f1e 0%, #0d2a4a 40%, #0a4a6e 70%, #0a6e8a 100%);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: 32px 48px;
+    box-sizing: border-box;
+    margin: 24px 0;
+    font-family: inherit;
+  }
+
+  /* Diagonal stripe texture overlay */
+  .electronics-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      60deg,
+      transparent,
+      transparent 18px,
+      rgba(255,255,255,0.03) 18px,
+      rgba(255,255,255,0.03) 20px
+    );
+    pointer-events: none;
+  }
+
+  /* Soft glow orb on the right */
+  .electronics-banner::after {
+    content: '';
+    position: absolute;
+    right: -60px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 420px;
+    height: 420px;
+    background: radial-gradient(circle, rgba(0,200,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .banner-text {
+    flex: 1;
+    position: relative;
+    z-index: 2;
+  }
+
+  .banner-text .eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #00e5ff;
+    margin: 0 0 6px 0;
+    font-weight: 600;
+  }
+
+  .banner-text h2 {
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 900;
+    color: #ffffff;
+    margin: 0 0 4px 0;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+
+  .banner-text .days {
+    font-size: clamp(0.85rem, 2vw, 1.05rem);
+    color: rgba(255,255,255,0.65);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 0 0 22px 0;
+  }
+
+  .banner-cta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .btn-shop {
+    display: inline-block;
+    background: #00c8ff;
+    color: #000d1a;
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 12px 28px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .btn-shop:hover {
+    background: #33d4ff;
+    transform: translateY(-1px);
+  }
+
+  .banner-discount {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .banner-discount span {
+    color: #00e5ff;
+    font-size: clamp(1.4rem, 3.5vw, 1.9rem);
+    font-weight: 900;
+  }
+
+  /* Product images strip */
+  .banner-products {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-shrink: 0;
+    margin-left: 24px;
+    background: radial-gradient(circle, rgba(0,200,255,0.12) 0%, transparent 70%);
+  }
+
+  .banner-products img {
+    height: clamp(90px, 18vw, 170px);
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,0.5));
+    transition: transform 0.3s;
+  }
+
+  .banner-products img:hover {
+    transform: translateY(-6px) scale(1.04);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .electronics-banner {
+      flex-direction: column;
+      padding: 24px 20px;
+      text-align: center;
+    }
+
+    .banner-products {
+      margin: 16px 0 0 0;
+      justify-content: center;
+    }
+
+    .banner-cta {
+      justify-content: center;
+    }
+  }
+</style>
+
+<!-- ══ BANNER HTML — paste this where you want the banner ══ -->
+<section class="electronics-banner">
+
+  <div class="banner-text">
+    <p class="eyebrow">Weekend Sale</p>
+    <h2>Electronics</h2>
+    <p class="days">Friday – Saturday</p>
+    <div class="banner-cta">
+      <a href="products.html?category=electronics" class="btn-shop">Shop Now</a>
+      <p class="banner-discount">Get up to <span>45% off</span></p>
+    </div>
+  </div>
+
+  <!-- 
+    Replace the src values below with your actual product image paths.
+    Three images work well. You can remove or add <img> tags as needed.
+  -->
+  <div class="banner-products">
+    <img src="images/product2.jpg"   alt="Smart Watch" />
+    <img src="images/product4.jpg"   alt="Smartphone" />
+    <img src="images/product3.jpg"      alt="Bluetooth Speaker" />
+  </div>
+
+</section>
+<!-- ══ END BANNER ══ -->
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    <script>
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const menuBackdrop = document.getElementById('menuBackdrop');
+        const hamburgerIcon = document.getElementById('hamburgerIcon');
+
+        function showMenu() {
+            dropdownMenu.classList.add('open');
+            menuBackdrop.classList.add('active');
+        }
+
+        function hideMenu() {
+            dropdownMenu.classList.remove('open');
+            menuBackdrop.classList.remove('active');
+        }
+
+        menuBackdrop.addEventListener('click', hideMenu);
+
+        function updateAuthLinksVisibility() {
+            const authLinks = document.getElementById('authLinks');
+            if (!authLinks) return;
+            const isLoggedIn = Boolean(sessionStorage.getItem('userEmail'));
+            authLinks.style.display = isLoggedIn ? 'none' : 'flex';
+        }
+
+        updateAuthLinksVisibility();
+    </script>
+
+
+    <section class="product-carousel">
+        <h2>Featured Products</h2>
+
+        <div class="carousel-container">
+            <button class="prev">&#10094;</button>
+
+            <div class="carousel-track">
+                <div class="product-card">
+                    <img src="images/product1.jpg" alt="Product">
+                    <h3>Wireless Headphones</h3>
+                    <p>KES 3,500</p>
+                    <button class="btn-primary" onclick="showProductDetail(13)">View Product</button>
+                </div>
+
+                <div class="product-card">
+                    <img src="images/product2.jpg" alt="Product">
+                    <h3>Smart Watch</h3>
+                    <p>KES 5,000</p>
+                    <button class="btn-primary" onclick="showProductDetail(14)">View Product</button>
+                </div>
+
+                <div class="product-card">
+                    <img src="images/product3.jpg" alt="Product">
+                    <h3>Bluetooth Speaker</h3>
+                    <p>KES 2,800</p>
+                    <button class="btn-primary" onclick="showProductDetail(15)">View Product</button>
+                </div>
+
+                <div class="product-card">
+                    <img src="images/product4.jpg" alt="Product">
+                    <h3>Smartphone</h3>
+                    <p>KES 2,800</p>
+                    <button class="btn-primary" onclick="showProductDetail(16)">View Product</button>
+                </div>
+
+                <div class="product-card">
+                    <img src="images/product5.jpg" alt="Product">
+                    <h3>Stanley Cup</h3>
+                    <p>KES 2,800</p>
+                    <button class="btn-primary" onclick="showProductDetail(17)">View Product</button>
+                </div>
+
+                <div class="product-card">
+                    <img src="images/product6.jpg" alt="Product">
+                    <h3>HP Laptop</h3>
+                    <p>KES 2,800</p>
+                    <button class="btn-primary" onclick="showProductDetail(18)">View Product</button>
+                </div>
+            </div>
+
+            <button class="next">&#10095;</button>
+        </div>
+    </section>
+
+    <script>
+        const track = document.querySelector(".carousel-track");
+        const originalCards = Array.from(track.querySelectorAll(".product-card"));
+        const cardWidth = 270;
+        let index = 0;
+        let isTransitioning = false;
+
+        originalCards.forEach(card => track.appendChild(card.cloneNode(true)));
+
+        function slideNext() {
+            if (isTransitioning) return;
+            index++;
+            track.style.transition = "transform 0.5s ease-in-out";
+            track.style.transform = `translateX(-${index * cardWidth}px)`;
+            isTransitioning = true;
+        }
+
+        track.addEventListener("transitionend", () => {
+            isTransitioning = false;
+            if (index >= originalCards.length) {
+                track.style.transition = "none";
+                index = 0;
+                track.style.transform = "translateX(0px)";
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        track.style.transition = "transform 0.5s ease-in-out";
+                    });
+                });
+            }
+        });
+
+        setInterval(slideNext, 3000);
+
+        function showProductDetail(productId) {
+            window.location.href = `product-detail.html?id=${productId}`;
+        }
+    </script>
+
+    <section class="main-container">
+        <h2>Products</h2><br>
+
+        <!-- ═══════════════════════════════════════════
+             FILTER / SORT BAR  (added here)
+        ════════════════════════════════════════════ -->
+        <div class="filter-bar" id="filterBar">
+
+            <div class="filter-group">
+                <label for="filterCategory">Category</label>
+                <select id="filterCategory">
+                    <option value="">All categories</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filterSubcategory">Subcategory</label>
+                <select id="filterSubcategory">
+                    <option value="">All subcategories</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filterBrand">Brand</label>
+                <select id="filterBrand">
+                    <option value="">All brands</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Price range (KES)</label>
+                <div class="filter-price-row">
+                    <input type="number" id="filterMinPrice" placeholder="Min" min="0">
+                    <span class="filter-price-sep">–</span>
+                    <input type="number" id="filterMaxPrice" placeholder="Max" min="0">
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label for="filterSort">Sort by</label>
+                <select id="filterSort">
+                    <option value="">Default</option>
+                    <option value="price_asc">Price: Low → High</option>
+                    <option value="price_desc">Price: High → Low</option>
+                    <option value="name_asc">Name: A → Z</option>
+                    <option value="name_desc">Name: Z → A</option>
+                    <option value="newest">Newest first</option>
+                </select>
+            </div>
+
+            <div class="filter-group" style="min-width: auto; justify-content: flex-end;">
+                <label>&nbsp;</label>
+                <div class="filter-stock-group">
+                    <input type="checkbox" id="filterInStock">
+                    <label for="filterInStock">In stock only</label>
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <button class="btn-apply" id="btnApplyFilters">Apply</button>
+                <button class="btn-reset" id="btnResetFilters">Reset</button>
+            </div>
+        </div>
+
+        <p class="filter-result-info" id="filterResultInfo" style="display:none;">
+            Showing <span id="filterCount">0</span> product(s)
+            <span id="filterActiveLabel"></span>
+        </p>
+        <!-- ═══════════════════════════════════════════ -->
+
+        <div class="products-grid" id="productsGrid">
+            <!-- Products dynamically loaded here -->
+        </div>
+    </section>
+
+    <div class="pagination">
+        <button id="prevBtn">Previous</button>
+        <span id="pageInfo"></span>
+        <button id="nextBtn">Next</button>
+    </div>
+
+    <script>
+        const API_BASE = window.API_BASE_URL;
+
+        let allProducts = [];       // master copy, never mutated
+        let products = [];          // current filtered/sorted view
+        const productsPerPage = 8;
+        let currentPage = 1;
+        const grid = document.getElementById('productsGrid');
+
+        /* ── Populate filter dropdowns from loaded products ── */
+        function populateFilters(data) {
+            const categories   = [...new Set(data.map(p => p.category).filter(Boolean))].sort();
+            const brands       = [...new Set(data.map(p => p.brand).filter(Boolean))].sort();
+
+            const catSel = document.getElementById('filterCategory');
+            categories.forEach(c => {
+                const o = document.createElement('option');
+                o.value = o.textContent = c;
+                catSel.appendChild(o);
+            });
+
+            const brandSel = document.getElementById('filterBrand');
+            brands.forEach(b => {
+                const o = document.createElement('option');
+                o.value = o.textContent = b;
+                brandSel.appendChild(o);
+            });
+        }
+
+        /* ── Cascade subcategory options when category changes ── */
+        document.getElementById('filterCategory').addEventListener('change', function () {
+            const selCat = this.value;
+            const subSel = document.getElementById('filterSubcategory');
+            subSel.innerHTML = '<option value="">All subcategories</option>';
+
+            const subs = [...new Set(
+                allProducts
+                    .filter(p => !selCat || p.category === selCat)
+                    .map(p => p.subcategory)
+                    .filter(Boolean)
+            )].sort();
+
+            subs.forEach(s => {
+                const o = document.createElement('option');
+                o.value = o.textContent = s;
+                subSel.appendChild(o);
+            });
+        });
+
+        /* ── Apply filters + sort ── */
+        function applyFilters() {
+            const cat      = document.getElementById('filterCategory').value;
+            const sub      = document.getElementById('filterSubcategory').value;
+            const brand    = document.getElementById('filterBrand').value;
+            const minPrice = parseFloat(document.getElementById('filterMinPrice').value) || 0;
+            const maxPrice = parseFloat(document.getElementById('filterMaxPrice').value) || Infinity;
+            const sort     = document.getElementById('filterSort').value;
+            const inStock  = document.getElementById('filterInStock').checked;
+
+            let result = allProducts.filter(p => {
+                if (cat   && p.category    !== cat)   return false;
+                if (sub   && p.subcategory !== sub)   return false;
+                if (brand && p.brand       !== brand) return false;
+                if (p.price < minPrice || p.price > maxPrice) return false;
+                if (inStock && (p.stock === 0 || p.stock == null)) return false;
+                return true;
+            });
+
+            /* Sorting */
+            if (sort === 'price_asc')  result.sort((a, b) => a.price - b.price);
+            if (sort === 'price_desc') result.sort((a, b) => b.price - a.price);
+            if (sort === 'name_asc')   result.sort((a, b) => a.name.localeCompare(b.name));
+            if (sort === 'name_desc')  result.sort((a, b) => b.name.localeCompare(a.name));
+            if (sort === 'newest')     result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            products = result;
+            currentPage = 1;
+
+            /* Result info bar */
+            const info   = document.getElementById('filterResultInfo');
+            const count  = document.getElementById('filterCount');
+            const label  = document.getElementById('filterActiveLabel');
+            const active = [cat, sub, brand].filter(Boolean);
+            count.textContent = products.length;
+            label.textContent = active.length ? `in: ${active.join(' › ')}` : '';
+            info.style.display = products.length < allProducts.length ? 'block' : 'none';
+
+            renderProducts();
+        }
+
+        /* ── Reset all filters ── */
+        document.getElementById('btnResetFilters').addEventListener('click', () => {
+            document.getElementById('filterCategory').value    = '';
+            document.getElementById('filterSubcategory').innerHTML = '<option value="">All subcategories</option>';
+            document.getElementById('filterBrand').value       = '';
+            document.getElementById('filterMinPrice').value    = '';
+            document.getElementById('filterMaxPrice').value    = '';
+            document.getElementById('filterSort').value        = '';
+            document.getElementById('filterInStock').checked   = false;
+            document.getElementById('filterResultInfo').style.display = 'none';
+            products = [...allProducts];
+            currentPage = 1;
+            renderProducts();
+        });
+
+        document.getElementById('btnApplyFilters').addEventListener('click', applyFilters);
+
+        /* ── Load products from API ── */
+        async function loadProducts() {
+            try {
+                const response = await fetch(`${API_BASE}/api/products`);
+                if (!response.ok) throw new Error('Unable to load products');
+                allProducts = await response.json();
+                products    = [...allProducts];
+                populateFilters(allProducts);
+                renderProducts();
+            } catch (error) {
+                grid.innerHTML = '<p>Unable to load products. Please try again later.</p>';
+                console.error(error);
+            }
+        }
+
+        /* ── Render current page ── */
+        function renderProducts() {
+            const startIndex = (currentPage - 1) * productsPerPage;
+            const endIndex   = startIndex + productsPerPage;
+            const paginatedProducts = products.slice(startIndex, endIndex);
+
+            grid.innerHTML = '';
+            if (!paginatedProducts.length) {
+                grid.innerHTML = '<p>No products found.</p>';
+                document.getElementById('pageInfo').textContent = '';
+                return;
+            }
+
+            paginatedProducts.forEach(product => {
+                grid.innerHTML += `
+                    <div class="product-card">
+                        <img src="${product.image}" alt="${product.name}">
+                        <h3>${product.name}</h3>
+                        <p>KES ${Number(product.price).toLocaleString()}</p>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.8rem;">
+                            <button class="btn-primary" style="flex: 1;" onclick="showProductDetail(${product.id})">View Product</button>
+                            <button class="btn-primary" style="padding: 0.5rem; display: flex; align-items: center; justify-content: center;" onclick="addToCart(${product.id})"><img src="icons/cart2.png" alt="Add to Cart" style="width: 20px; height: 20px;"></button>
+                            <button class="btn-primary" style="padding: 0.5rem; display: flex; align-items: center; justify-content: center;" onclick="addToWishlist(${product.id})"><img src="icons/wishlist2.png" alt="Add to Wishlist" style="width: 20px; height: 20px;"></button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('pageInfo').textContent =
+                `Page ${currentPage} of ${Math.ceil(products.length / productsPerPage)}`;
+        }
+
+        /* ── Cart / Wishlist (unchanged) ── */
+        async function addToCart(productId) {
+            const email = sessionStorage.getItem('userEmail');
+            if (!email) { window.location.href = 'login.html'; return; }
+
+            const badge = document.getElementById('cartBadge');
+            const previousCount = badge ? parseInt(badge.textContent, 10) || 0 : 0;
+            if (badge) { badge.textContent = previousCount + 1; badge.style.display = 'flex'; }
+
+            const response = await fetch(window.apiPath('/api/cart/add'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, productId, quantity: 1 })
+            });
+
+            if (!response.ok) {
+                console.error('Could not add to cart.');
+                if (badge) {
+                    badge.textContent = previousCount;
+                    badge.style.display = previousCount ? 'flex' : 'none';
+                }
+            }
+        }
+
+        async function addToWishlist(productId) {
+            const email = sessionStorage.getItem('userEmail');
+            if (!email) {
+                alert('Please login to save items to your wishlist.');
+                window.location.href = 'login.html';
+                return;
+            }
+            try {
+                const res  = await fetch(window.apiPath('/api/wishlist/add'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, productId })
+                });
+                const data = await res.json();
+                if (res.status === 409) { alert('This item is already in your wishlist.'); return; }
+                if (!res.ok) { alert(data.error || 'Could not add to wishlist.'); return; }
+                alert('Added to wishlist!');
+            } catch (err) {
+                console.error('Wishlist error:', err);
+                alert('Could not add to wishlist. Please try again.');
+            }
+        }
+
+        async function updateCartCount() {
+            const email = sessionStorage.getItem('userEmail');
+            const badge = document.getElementById('cartBadge');
+            if (!email || !badge) return;
+            try {
+                const response = await fetch(window.apiPath(`/api/cart/${encodeURIComponent(email)}`));
+                if (!response.ok) { badge.style.display = 'none'; return; }
+                const data       = await response.json();
+                const totalItems = data.reduce((sum, item) => sum + item.quantity, 0);
+                badge.textContent    = totalItems;
+                badge.style.display  = totalItems ? 'flex' : 'none';
+            } catch (error) {
+                console.error('Unable to update cart badge.', error);
+            }
+        }
+
+        /* ── Pagination ── */
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentPage > 1) { currentPage--; renderProducts(); }
+        });
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentPage < Math.ceil(products.length / productsPerPage)) { currentPage++; renderProducts(); }
+        });
+
+        loadProducts();
+        updateCartCount();
+    </script>
+
+    <section class="contact-store-section">
+        <div class="contact-container">
+            <div class="contact-form">
+                <h2>Contact Us</h2>
+                <label>NAME:</label>
+                <input type="text" placeholder="Enter your name">
+                <label>EMAIL:</label>
+                <input type="email" placeholder="Enter your email">
+                <label>MESSAGE:</label>
+                <textarea rows="5" placeholder="Enter your message"></textarea>
+                <button type="submit">Send Message</button>
+            </div>
+            <div class="store-info">
+                <h2>Our Store</h2>
+                <p>123 Market Street, Nairobi, Kenya</p>
+                <h3>About Us</h3>
+                <p>Maggy Bazaar is your one-stop online shop for everything you need. From the latest electronics to trendy fashion, we have it all at unbeatable prices.</p>
+                <h3>Contact Information</h3>
+                <p>Phone: +254 123 456 789</p>
+                <p>Email: info@maggybazaar.com</p>
+            </div>
+        </div>
+    </section>
+
+
+    <script>
+        document.querySelector('.contact-form button').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const name = document.querySelector('.contact-form input[type="text"]').value;
+    const email = document.querySelector('.contact-form input[type="email"]').value;
+    const message = document.querySelector('.contact-form textarea').value;
+
+    const res = await fetch(window.apiPath('/api/contact'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message })
+    });
+
+    const result = await res.json();
+    if (res.ok) {
+        alert('Message sent!');
+        document.querySelector('.contact-form').reset();
+    } else {
+        alert(result.error || 'Something went wrong');
+    }
+});
+    </script>
+
+
+
+
+
+
+
+    <script>
+        document.querySelectorAll('[data-page]').forEach(link => {
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const page = e.target.dataset.page;
+                const response = await fetch(`${page}.html`);
+                const content  = await response.text();
+                document.getElementById('page-content').innerHTML = content;
+                history.pushState({ page }, '', `/${page}`);
+            });
+        });
+    </script>
+
+    <footer>
+        &copy; 2026 Maggy Bazaar. All rights reserved.
+    </footer>
+</body>
+</html>

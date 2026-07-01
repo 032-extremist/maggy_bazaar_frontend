@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
+    <script src="header.js" defer></script>
+</head>
+
+<body>
+    <div class="site-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-logo">M</div>
+                <div class="brand-name">MAGGY BAZAAR</div>
+            </div>
+
+            <!-- <div class="search-area">
+                <div class="search-bar">
+                    <span></span>
+                    <input type="text" placeholder="Search products, brands and categories">
+                </div>
+            </div> -->
+
+              <div class="search-area">
+            <div class="search-wrapper">
+                <input id="search-input" type="text" placeholder="Search products…" autocomplete="off">
+                <div id="search-results"></div> 
+            </div> 
+        </div>
+        
+        <script src="search.js"></script>
+
+
+            <div class="nav-icons-container">
+                <div class="nav-icon-btn">
+                    <a href="home.html">
+                        <img src="icons/home-icon.png" alt="Home Icon"></a>
+                </div>
+                <div class="nav-icon-btn">
+                    <a href="account.html">
+                        <img src="icons/account-icon.png" alt="Account Icon"></a>
+                </div>
+                <div class="nav-icon-btn"><a href="cart.html">
+                        <img src="icons/cart-icon.png" alt="Cart Icon"></a></div>
+            </div>
+
+            <!-- THREE LINE ICON (HAMBURGER) - FULLY CLICKABLE -->
+            <button class="hamburger-btn nav-icon-btn" onclick="showMenu()" id="hamburgerIcon" aria-label="Menu">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Background overlay when menu is open -->
+    <div class="menu-backdrop" id="menuBackdrop"></div>
+
+    <!-- DROPDOWN MENU : links to other pages (simulated with # but ready for real URLs) -->
+    <div class="dropdown-nav" id="dropdownMenu">
+        <div class="dropdown-inner">
+
+            <!-- MY MG-B ACCOUNT section -->
+            <div class="menu-group">
+                <div class="group-title">MY MG-B ACCOUNT</div>
+                <ul class="dropdown-links-list">
+                    <li><a href="orders.html" class="menu-link"><span class="menu-icon"><img class="icons"
+                                    src="icons/order-icon.png" alt="order Icon"></span> Orders</a></li>
+                    <li><a href="inbox.html" class="menu-link"><span class="menu-icon"><img class="icons"
+                                    src="icons/inbox-icon.png" alt="inbox Icon"></span> Inbox</a></li>
+                    <li><a href="wishlist.html" class="menu-link"><span class="menu-icon"><img class="icons"
+                                    src="icons/wishlist-icon.png" alt="wishlist Icon"></span> Wishlist</a></li>
+                </ul>
+            </div>
+
+            <div class="divider-light"></div>
+
+            
+        </div>
+    </div>
+
+    <script>
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const menuBackdrop = document.getElementById('menuBackdrop');
+        const hamburgerIcon = document.getElementById('hamburgerIcon');
+
+        function showMenu() {
+            dropdownMenu.classList.add('open');
+            menuBackdrop.classList.add('active');
+        }
+
+        function hideMenu() {
+            dropdownMenu.classList.remove('open');
+            menuBackdrop.classList.remove('active');
+        }
+
+        menuBackdrop.addEventListener('click', hideMenu);
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <section class="contact-store-section">
+        <div class="contact-container">
+            <div class="contact-form" id="inbox-container">
+                <h2>My Inbox</h2>
+                <div id="inboxStatus"></div>
+                <div id="inboxMessages"></div>
+            </div>
+
+            <div class="store-info">
+                <h2>Need Help?</h2>
+                <p>Check important updates, order notifications, and messages from Maggy Bazaar.</p>
+                <h3>Contact Information</h3>
+                <p>Phone: +254 123 456 789</p>
+                <p>Email: info@maggybazaar.com</p>
+            </div>
+        </div>
+    </section>
+
+
+    <script>
+        const userEmail = sessionStorage.getItem('userEmail');
+        const inboxStatus = document.getElementById('inboxStatus');
+        const inboxMessages = document.getElementById('inboxMessages');
+
+        function renderInbox(messages) {
+            if (!messages.length) {
+                inboxStatus.innerHTML = '<p>Your inbox is empty.</p>';
+                inboxMessages.innerHTML = '';
+                return;
+            }
+
+            inboxStatus.textContent = '';
+            inboxMessages.innerHTML = messages.map(message => `
+                <div class="message-card" style="padding: 1rem; margin-bottom: 1rem; border: 1px solid #ddd; border-radius: 12px;">
+                    <h3>${message.subject}</h3>
+                    <p>${message.body}</p>
+                    <div style="font-size:0.9rem; color:#555; margin-top:0.5rem;">${new Date(message.createdAt).toLocaleString()}</div>
+                </div>
+            `).join('');
+        }
+
+        async function loadInbox() {
+            if (!userEmail) {
+                inboxStatus.innerHTML = '<p>Please <a href="login.html">login</a> to view your messages.</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(window.apiPath(`/api/inbox/${encodeURIComponent(userEmail)}`));
+                const data = await response.json();
+                if (!response.ok) {
+                    inboxStatus.textContent = data.error || 'Unable to load inbox.';
+                    return;
+                }
+                renderInbox(data);
+            } catch (error) {
+                inboxStatus.textContent = 'Unable to load inbox. Please try again later.';
+                console.error(error);
+            }
+        }
+
+        loadInbox();
+    </script>
+
+    <footer>
+        &copy; 2026 Maggy Bazaar. All rights reserved.
+    </footer>
+</body>
+
+</html>

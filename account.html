@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
+    <script src="header.js" defer></script>
+</head>
+
+<body>
+    <div class="site-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-logo">M</div>
+                <div class="brand-name">MAGGY BAZAAR</div>
+            </div>
+
+          <!--  <div class="search-area">
+                <div class="search-bar">
+                    <span></span>
+                    <input type="text" placeholder="Search products, brands and categories">
+                </div>
+            </div> -->
+
+         <div class="search-area">
+            <div class="search-wrapper">
+                <input id="search-input" type="text" placeholder="Search products…" autocomplete="off">
+                <div id="search-results"></div> 
+            </div> 
+        </div>
+        
+        <script src="search.js"></script>
+
+            <div class="nav-icons-container">
+                <div class="nav-icon-btn">
+                    <a href="home.html">
+                        <img src="icons/home-icon.png" alt="Home Icon"></a>
+                </div>
+                <div class="nav-icon-btn">
+                    <a href="account.html">
+                        <img src="icons/account-icon.png" alt="Account Icon"></a>
+                </div>
+                <div class="nav-icon-btn">
+                    <a href="cart.html">
+                        <img src="icons/cart-icon.png" alt="Cart Icon"></a>
+                    <div class="cart-badge" id="cartBadge">0</div>
+                </div>
+            </div>
+
+            <!-- THREE LINE ICON (HAMBURGER) - FULLY CLICKABLE -->
+            <button class="hamburger-btn nav-icon-btn" onclick="showMenu()" id="hamburgerIcon" aria-label="Menu">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Background overlay when menu is open -->
+    <div class="menu-backdrop" id="menuBackdrop"></div>
+
+    <!-- DROPDOWN MENU : links to other pages (simulated with # but ready for real URLs) -->
+    <div class="dropdown-nav" id="dropdownMenu">
+        <div class="dropdown-inner">
+
+            <!-- MY MG-B ACCOUNT section -->
+            <div class="menu-group">
+                <div class="group-title">MY MG-B ACCOUNT</div>
+                <ul class="dropdown-links-list">
+                    <li><a href="orders.html" class="menu-link"><span class="menu-icon"><img class="icons"
+                                    src="icons/order-icon.png" alt="order Icon"></span> Orders</a></li>
+                    <li><a href="inbox.html" class="menu-link"><span class="menu-icon"><img class="icons"
+                                    src="icons/inbox-icon.png" alt="inbox Icon"></span> Inbox</a></li>
+                    <li><a href="wishlist.html" class="menu-link"><span class="menu-icon"><img class="icons"
+                                    src="icons/wishlist-icon.png" alt="wishlist Icon"></span> Wishlist</a></li>
+                </ul>
+            </div>
+
+            <div class="divider-light"></div>
+
+            
+        </div>
+    </div>
+
+    <script>
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const menuBackdrop = document.getElementById('menuBackdrop');
+        const hamburgerIcon = document.getElementById('hamburgerIcon');
+
+        function showMenu() {
+            dropdownMenu.classList.add('open');
+            menuBackdrop.classList.add('active');
+        }
+
+        function hideMenu() {
+            dropdownMenu.classList.remove('open');
+            menuBackdrop.classList.remove('active');
+        }
+
+        menuBackdrop.addEventListener('click', hideMenu);
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <section class="contact-store-section">
+        <div class="contact-container">
+            <div class="contact-form" id="account-container">
+                <h2>My Account</h2>
+                <div id="accountStatus"></div>
+                <div class="profile-picture-section">
+                    <label for="profileImageInput" class="profile-picture-wrapper" title="Upload profile picture">
+                        <img id="profileImagePreview" class="profile-picture-preview" src="icons/account-icon.png" alt="Profile picture preview">
+                        <span class="profile-upload-plus">+</span>
+                    </label>
+                    <input type="file" id="profileImageInput" accept="image/*">
+                    <div id="profileImageMessage" class="profile-image-message"></div>
+                </div>
+                <div id="accountDetails"></div>
+                <button id="logoutButton" class="logout-button" type="button">Log Out</button>
+                <h3>Recent Orders</h3>
+                <div id="recentOrders"></div>
+            </div>
+
+            <div class="store-info">
+                <h2>Need Help?</h2>
+                <p>Manage your account information and review recent purchases.</p>
+                <h3>Contact Information</h3>
+                <p>Phone: +254 123 456 789</p>
+                <p>Email: info@maggybazaar.com</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const API_BASE = window.API_BASE_URL;
+
+        const userEmail = sessionStorage.getItem('userEmail');
+        const accountStatus = document.getElementById('accountStatus');
+        const accountDetails = document.getElementById('accountDetails');
+        const recentOrders = document.getElementById('recentOrders');
+
+        function formatOrderSummary(order) {
+            const orderTotal = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            return `
+                <div class="order-card">
+                    <div class="order-card-header">
+                        <span>Order #${order.orderId}</span>
+                        <span>${new Date(order.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <div class="order-card-status">Status: ${order.status}</div>
+                    <div class="order-total">Total: KES ${orderTotal.toLocaleString()}</div>
+                </div>
+            `;
+        }
+
+        async function loadAccount() {
+            if (!userEmail) {
+                accountStatus.innerHTML = '<p>Please <a href="login.html">login</a> to view your account.</p>';
+                return;
+            }
+
+            try {
+                const [userRes, ordersRes] = await Promise.all([
+                    fetch(`${API_BASE}/api/user/${encodeURIComponent(userEmail)}`),
+                    fetch(`${API_BASE}/api/orders/${encodeURIComponent(userEmail)}`),
+                ]);
+
+                const userData = await userRes.json();
+                const ordersData = await ordersRes.json();
+
+                if (!userRes.ok) {
+                    accountStatus.textContent = userData.error || 'Unable to load account details.';
+                    return;
+                }
+
+                accountDetails.innerHTML = `
+                    <p><strong>Name:</strong> ${userData.firstName} ${userData.lastName}</p>
+                    <p><strong>Email:</strong> ${userData.email}</p>
+                    <p><strong>Phone:</strong> ${userData.phone}</p>
+                `;
+
+                if (!ordersRes.ok) {
+                    recentOrders.innerHTML = '<p>Unable to load recent orders.</p>';
+                    return;
+                }
+
+                if (!ordersData.length) {
+                    recentOrders.innerHTML = '<p>No recent orders found.</p>';
+                } else {
+                    recentOrders.innerHTML = ordersData.slice(0, 3).map(formatOrderSummary).join('');
+                }
+            } catch (error) {
+                accountStatus.textContent = 'Unable to load account details. Please try again later.';
+                console.error(error);
+            }
+        }
+
+        loadAccount();
+        updateCartCount();
+
+        const logoutButton = document.getElementById('logoutButton');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', () => {
+                sessionStorage.removeItem('userEmail');
+                window.location.href = 'login.html';
+            });
+        }
+
+        async function updateCartCount() {
+            const email = sessionStorage.getItem('userEmail');
+            const badge = document.getElementById('cartBadge');
+            if (!email || !badge) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/cart/${encodeURIComponent(email)}`);
+                if (!response.ok) {
+                    badge.style.display = 'none';
+                    return;
+                }
+                const data = await response.json();
+                const totalItems = data.reduce((sum, item) => sum + item.quantity, 0);
+                badge.textContent = totalItems;
+                badge.style.display = totalItems ? 'flex' : 'none';
+            } catch (error) {
+                console.error('Unable to update cart badge.', error);
+            }
+        }
+
+        const profileImageInput = document.getElementById('profileImageInput');
+        const profileImagePreview = document.getElementById('profileImagePreview');
+        const profileImageMessage = document.getElementById('profileImageMessage');
+
+        async function loadProfileImage() {
+            // Try to fetch server-stored image first
+            if (userEmail) {
+                try {
+                    const resp = await fetch(`${API_BASE}/api/user/${encodeURIComponent(userEmail)}/profile-image`);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data && data.imageUrl) {
+                            profileImagePreview.src = data.imageUrl;
+                            return;
+                        }
+                    }
+                } catch (err) {
+                    console.error('Unable to fetch profile image from server', err);
+                }
+            }
+
+            // Fallback to locally saved image in browser
+            const savedImage = localStorage.getItem('profileImage');
+            if (savedImage && typeof savedImage === 'string' && savedImage.startsWith('data:image/')) {
+                profileImagePreview.src = savedImage;
+            } else {
+                profileImagePreview.src = 'icons/account-icon.png';
+            }
+        }
+
+        loadProfileImage();
+
+        profileImageInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                profileImageMessage.textContent = 'Please select a valid image file.';
+                return;
+            }
+
+            if (!userEmail) {
+                profileImageMessage.textContent = 'Please log in to upload a profile image.';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const resp = await fetch(`${API_BASE}/api/user/${encodeURIComponent(userEmail)}/profile-image`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await resp.json();
+                if (!resp.ok) {
+                    profileImageMessage.textContent = result.error || 'Upload failed.';
+                    return;
+                }
+
+                profileImagePreview.src = result.imageUrl;
+                // also save a local copy as fallback
+                try {
+                    const reader = new FileReader();
+                    reader.onload = () => localStorage.setItem('profileImage', reader.result);
+                    reader.readAsDataURL(file);
+                } catch (e) {
+                    // ignore
+                }
+
+                profileImageMessage.textContent = 'Profile image uploaded.';
+            } catch (err) {
+                console.error(err);
+                profileImageMessage.textContent = 'Upload failed. Please try again.';
+            }
+        });
+
+        profileImagePreview.addEventListener('error', () => {
+            profileImagePreview.src = 'icons/account-icon.png';
+        });
+    </script>
+
+    <footer>
+        &copy; 2026 Maggy Bazaar. All rights reserved.
+    </footer>
+</body>
+
+</html>

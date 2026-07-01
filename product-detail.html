@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Maggy Bazaar</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
+    <script src="header.js" defer></script>
+</head>
+
+<body>
+
+    <div class="site-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-logo">M</div>
+                <div class="brand-name">MAGGY BAZAAR</div>
+            </div>
+
+        <div class="search-area">
+            <div class="search-wrapper">
+                <input id="search-input" type="text" placeholder="Search products…" autocomplete="off">
+                <div id="search-results"></div> 
+            </div> 
+        </div>
+        
+        <script src="search.js"></script>
+
+            <div class="nav-icons-container">
+                <div class="nav-icon-btn">
+                    <a href="home.html">
+                        <img src="icons/home-icon.png" alt="Home Icon"></a>
+                </div>
+                <div class="nav-icon-btn">
+                    <a href="account.html">
+                        <img src="icons/account-icon.png" alt="Account Icon"></a>
+                </div>
+                <div class="nav-icon-btn">
+                    <a href="cart.html">
+                        <img src="icons/cart-icon.png" alt="Cart Icon"></a>
+                    <div class="cart-badge" id="cartBadge">0</div>
+                </div>
+            </div>
+
+            <div class="auth-links" id="authLinks">
+                <a href="login.html" class="btn-secondary">Login</a>
+                <a href="signup.html" class="btn-primary">Sign Up</a>
+            </div>
+
+            <!-- THREE LINE ICON (HAMBURGER) - FULLY CLICKABLE -->
+            <button class="hamburger-btn nav-icon-btn" onclick="showMenu()" id="hamburgerIcon" aria-label="Menu">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Background overlay when menu is open -->
+    <div class="menu-backdrop" id="menuBackdrop"></div>
+
+    <!-- DROPDOWN MENU -->
+    <div class="dropdown-nav" id="dropdownMenu">
+        <div class="dropdown-inner">
+
+            <!-- MY MG-B ACCOUNT section -->
+            <div class="menu-group">
+                <div class="group-title">MY MG-B ACCOUNT</div>
+                <ul class="dropdown-links-list">
+                    <li><a href="orders.html" class="menu-link"><span class="menu-icon"><img class="icons"
+                                    src="icons/order-icon.png" alt="order Icon"></span> Orders</a></li>
+                    <li><a href="inbox.html" class="menu-link"><span class="menu-icon"><img class="icons"
+                                    src="icons/inbox-icon.png" alt="inbox Icon"></span> Inbox</a></li>
+                    <li><a href="wishlist.html" class="menu-link"><span class="menu-icon"><img class="icons"
+                                    src="icons/wishlist-icon.png" alt="wishlist Icon"></span> Wishlist</a></li>
+                </ul>
+            </div>
+
+            <div class="divider-light"></div>
+
+            <!-- OUR CATEGORIES -->
+            
+        </div>
+    </div>
+
+    <script>
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const menuBackdrop = document.getElementById('menuBackdrop');
+        const hamburgerIcon = document.getElementById('hamburgerIcon');
+
+        function showMenu() {
+            dropdownMenu.classList.add('open');
+            menuBackdrop.classList.add('active');
+        }
+
+        function hideMenu() {
+            dropdownMenu.classList.remove('open');
+            menuBackdrop.classList.remove('active');
+        }
+
+        menuBackdrop.addEventListener('click', hideMenu);
+
+        function updateAuthLinksVisibility() {
+            const authLinks = document.getElementById('authLinks');
+            const isLoggedIn = Boolean(sessionStorage.getItem('userEmail'));
+            if (authLinks) {
+                authLinks.style.display = isLoggedIn ? 'none' : 'flex';
+            }
+        }
+
+        updateAuthLinksVisibility();
+    </script>
+
+    <style>
+        @media (max-width: 680px) {
+            .product-detail-layout {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .product-detail-layout img {
+                width: 100%;
+                height: auto;
+                max-height: 280px;
+            }
+
+            #relatedProductsGrid a {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <section class="contact-store-section">
+        <div class="contact-container">
+            <div class="contact-form" id="product-detail-container">
+                <h2>Product Details</h2>
+                <div id="productStatus"></div>
+                <div id="productDetails"></div>
+                <div id="productStock"></div>
+
+                <!-- Related Products Section -->
+                <div id="relatedProductsSection" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #ddd; display:none;">
+                    <h3>You May Also Like</h3>
+                    <div id="relatedProductsGrid" style="display: flex; gap: 1.2rem; overflow-x: auto; padding-bottom: 0.5rem;"></div>
+                </div>
+
+                <!-- Customer Feedback Section -->
+                <div id="feedbackSection" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #ddd;">
+                    <h3>Customer Feedback</h3>
+                    <div id="feedbackForm">
+                        <label>Your Name:</label>
+                        <input type="text" id="feedbackName" placeholder="Enter your name" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ddd; border-radius: 5px;">
+
+                        <label>Rating:</label>
+                        <select id="feedbackRating" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ddd; border-radius: 5px;">
+                            <option value="">Select rating</option>
+                            <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                            <option value="4">⭐⭐⭐⭐ Good</option>
+                            <option value="3">⭐⭐⭐ Average</option>
+                            <option value="2">⭐⭐ Poor</option>
+                            <option value="1">⭐ Very Poor</option>
+                        </select>
+
+                        <label>Your Feedback:</label>
+                        <textarea id="feedbackText" placeholder="Share your feedback..." rows="4" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ddd; border-radius: 5px; font-family: inherit;"></textarea>
+
+                        <button id="submitFeedbackBtn" class="btn-primary">Submit Feedback</button>
+                    </div>
+
+                    <div id="feedbackList" style="margin-top: 2rem;">
+                        <h4>Customer Reviews:</h4>
+                        <div id="reviewsContainer"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="store-info">
+                <h2>About This Product</h2>
+                <p>Browse our extensive collection of quality products at unbeatable prices.</p>
+
+                <h3>Why Shop With Us?</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li>✓ Fast and reliable delivery</li>
+                    <li>✓ Secure payment options</li>
+                    <li>✓ Quality guaranteed</li>
+                    <li>✓ Easy returns and exchanges</li>
+                </ul>
+
+                <h3>Contact Information</h3>
+                <p>Phone: +254 123 456 789</p>
+                <p>Email: info@maggybazaar.com</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const productStatus = document.getElementById('productStatus');
+        const productDetails = document.getElementById('productDetails');
+        const submitFeedbackBtn = document.getElementById('submitFeedbackBtn');
+        const reviewsContainer = document.getElementById('reviewsContainer');
+
+        // Get product ID from URL parameters
+        function getProductIdFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        async function loadProduct() {
+            const productId = getProductIdFromURL();
+            if (!productId) {
+                productStatus.innerHTML = '<p>Product not found. <a href="home.html">Back to home</a></p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(window.apiPath(`/api/products/${encodeURIComponent(productId)}`));
+                if (!response.ok) {
+                    throw new Error('Product not found');
+                }
+
+                const product = await response.json();
+
+                productDetails.innerHTML = `
+                    <div class="product-detail-layout" style="display: flex; gap: 2rem; margin-bottom: 2rem;">
+                        <img src="${product.image}" alt="${product.name}" style="width: 300px; height: 300px; object-fit: cover; border-radius: 12px; flex-shrink: 0;">
+                        <div>
+                            <h3 style="font-size: 1.8rem; margin-bottom: 0.5rem;">${product.name}</h3>
+                            <p style="color: #666; font-size: 1rem; margin-bottom: 1rem;">Brand: <strong>${product.brand}</strong></p>
+                            <p style="font-size: 1.5rem; color: #02F5A1; font-weight: bold; margin-bottom: 1rem;">KES ${parseFloat(product.price).toLocaleString()}</p>
+                            <p style="color: ${product.stock > 0 ? '#02F5A1' : '#FF4C4C'}; font-weight: bold; margin-bottom: 1rem;">${product.stock > 0 ? 'In Stock' : 'Out of Stock'}</p>
+                            <p style="line-height: 1.6; color: #333; margin-bottom: 2rem;">${product.description}</p>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 0.8rem; flex-wrap: wrap;">
+                            <button class="btn-primary" onclick="addToCart(${product.id})" style="height: fit-content;">Add to Cart</button>
+                            <button class="btn-primary" onclick="window.location.href='https://wa.me/254715293265'"><img src="icons/whatsapp-icon.png" alt="WhatsApp"></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                loadFeedback(productId);
+                loadRelatedProducts(productId);
+            } catch (error) {
+                productStatus.innerHTML = '<p>Product not found. <a href="home.html">Back to home</a></p>';
+                console.error(error);
+            }
+        }
+
+        async function loadRelatedProducts(productId) {
+            const section = document.getElementById('relatedProductsSection');
+            const grid = document.getElementById('relatedProductsGrid');
+
+            try {
+                const res = await fetch(window.apiPath(`/api/products/${encodeURIComponent(productId)}/related`));
+                if (!res.ok) return;
+                const related = await res.json();
+
+                if (!related.length) return;
+
+                grid.innerHTML = related.map(p => `
+                    <a href="product-detail.html?id=${p.id}" style="text-decoration:none; color:inherit; flex-shrink:0; width:180px;">
+                        <div style="border:1px solid #eee; border-radius:10px; overflow:hidden; transition: box-shadow 0.2s;">
+                            <img src="${p.image}" alt="${p.name}" style="width:100%; height:140px; object-fit:cover;">
+                            <div style="padding:0.6rem;">
+                                <div style="font-weight:700; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
+                                <div style="color:#666; font-size:0.8rem; margin-bottom:0.3rem;">${p.brand}</div>
+                                <div style="color:#02F5A1; font-weight:700; font-size:0.95rem;">KES ${parseFloat(p.price).toLocaleString()}</div>
+                            </div>
+                        </div>
+                    </a>
+                `).join('');
+
+                section.style.display = 'block';
+            } catch (error) {
+                console.error('Could not load related products.', error);
+            }
+        }
+
+        async function addToCart(productId) {
+            const email = sessionStorage.getItem('userEmail');
+            if (!email) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const badge = document.getElementById('cartBadge');
+            const previousCount = badge ? parseInt(badge.textContent, 10) || 0 : 0;
+            if (badge) {
+                badge.textContent = previousCount + 1;
+                badge.style.display = 'flex';
+            }
+
+            try {
+                const response = await fetch(window.apiPath('/api/cart/add'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, productId, quantity: 1 })
+                });
+
+                if (!response.ok) {
+                    console.error('Could not add to cart.');
+                    if (badge) {
+                        badge.textContent = previousCount;
+                        badge.style.display = previousCount ? 'flex' : 'none';
+                    }
+                    return;
+                }
+                updateCartCount();
+            } catch (error) {
+                console.error('Unable to add to cart.', error);
+                if (badge) {
+                    badge.textContent = previousCount;
+                    badge.style.display = previousCount ? 'flex' : 'none';
+                }
+            }
+        }
+
+        async function updateCartCount() {
+            const email = sessionStorage.getItem('userEmail');
+            const badge = document.getElementById('cartBadge');
+            if (!email || !badge) return;
+
+            try {
+                const response = await fetch(window.apiPath(`/api/cart/${encodeURIComponent(email)}`));
+                if (!response.ok) {
+                    badge.style.display = 'none';
+                    return;
+                }
+                const data = await response.json();
+                const totalItems = data.reduce((sum, item) => sum + item.quantity, 0);
+                badge.textContent = totalItems;
+                badge.style.display = totalItems ? 'flex' : 'none';
+            } catch (error) {
+                console.error('Unable to update cart badge.', error);
+            }
+        }
+
+        async function loadFeedback(productId) {
+            try {
+                const res = await fetch(window.apiPath(`/api/feedback/${encodeURIComponent(productId)}`));
+                if (!res.ok) throw new Error('Failed to load feedback');
+                const feedbacks = await res.json();
+                displayFeedback(feedbacks);
+            } catch (error) {
+                console.error(error);
+                reviewsContainer.innerHTML = '<p style="color:#999;">Unable to load reviews.</p>';
+            }
+        }
+
+        function displayFeedback(feedbacks) {
+            reviewsContainer.innerHTML = '';
+            if (!feedbacks.length) {
+                reviewsContainer.innerHTML = '<p style="color: #999;">No reviews yet. Be the first to review!</p>';
+                return;
+            }
+
+            feedbacks.forEach(feedback => {
+                reviewsContainer.innerHTML += `
+                    <div style="padding: 1rem; margin-bottom: 1rem; background: #f5f5f5; border-radius: 8px; border-left: 4px solid #02F5A1;">
+                        <strong>${feedback.user_name}</strong> <span style="color: #666; font-size: 0.9rem;">- ${feedback.rating}⭐</span>
+                        <p style="margin-top: 0.5rem; color: #333;">${feedback.feedback}</p>
+                    </div>
+                `;
+            });
+        }
+
+        submitFeedbackBtn.addEventListener('click', async () => {
+            const name = document.getElementById('feedbackName').value.trim();
+            const rating = document.getElementById('feedbackRating').value;
+            const feedback = document.getElementById('feedbackText').value.trim();
+            const email = sessionStorage.getItem('userEmail');
+
+            if (!email) {
+                alert('Please login to leave feedback.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (!name || !rating || !feedback) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const productId = getProductIdFromURL();
+
+            try {
+                const res = await fetch(window.apiPath(`/api/feedback/${encodeURIComponent(productId)}`), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, user_name: name, rating, feedback })
+                });
+
+                if (!res.ok) {
+                    const data = await res.json();
+                    alert(data.error || 'Could not submit feedback.');
+                    return;
+                }
+
+                document.getElementById('feedbackName').value = '';
+                document.getElementById('feedbackRating').value = '';
+                document.getElementById('feedbackText').value = '';
+
+                loadFeedback(productId);
+                alert('Thank you for your feedback!');
+            } catch (error) {
+                console.error(error);
+                alert('Could not submit feedback. Please try again.');
+            }
+        });
+
+        // Load product on page load
+        loadProduct();
+        updateCartCount();
+    </script>
+
+    <footer>
+        &copy; 2026 Maggy Bazaar. All rights reserved.
+    </footer>
+
+</body>
+
+</html>

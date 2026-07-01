@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+<link rel="stylesheet" href="static/admin.css">
+<link rel="stylesheet" href="styles.css">
+<script src="config.js"></script>
+<style>
+    /* ── Admin Sidebar ─────────────────────────────── */
+    .admin-sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        width: 220px; height: 100vh;
+        background: #1a202c; color: #fff;
+        padding: 24px 0;
+        box-sizing: border-box;
+        overflow-y: auto;
+        z-index: 500;
+    }
+    .admin-sidebar-title {
+        font-size: 0.95rem; font-weight: 700;
+        letter-spacing: 0.04em; text-transform: uppercase;
+        color: #a0aec0; padding: 0 20px; margin-bottom: 18px;
+    }
+    .admin-sidebar-nav { display: flex; flex-direction: column; }
+    .admin-sidebar-link {
+        padding: 12px 20px; color: #cbd5e0;
+        text-decoration: none; font-size: 0.92rem; font-weight: 500;
+        border-left: 3px solid transparent;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .admin-sidebar-link:hover { background: #2d3748; color: #fff; }
+    .admin-sidebar-link.active {
+        background: #2d3748; color: #3bb54a; border-left-color: #3bb54a;
+    }
+    .admin-main { margin-left: 220px; padding: 24px 32px; box-sizing: border-box; }
+    .site-header, .menu-backdrop, .dropdown-nav {
+        margin-left: 220px; width: calc(100% - 220px); box-sizing: border-box;
+    }
+
+    /* ── Delivery partner cards ── */
+    .partner-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px; margin-top: 16px;
+    }
+    .partner-card {
+        background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+        padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .partner-card h4 { margin: 0 0 4px; font-size: 1rem; }
+    .partner-card .p-meta { font-size: 0.82rem; color: #718096; margin-bottom: 10px; }
+    .partner-card .p-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .partner-card .badge-active   { color: #276749; background:#c6f6d5; padding:2px 8px; border-radius:12px; font-size:.75rem; font-weight:700; }
+    .partner-card .badge-inactive { color: #822727; background:#fed7d7; padding:2px 8px; border-radius:12px; font-size:.75rem; font-weight:700; }
+
+    .btn-sm {
+        padding: 5px 12px; font-size: 0.8rem; border-radius: 6px;
+        border: none; cursor: pointer; font-weight: 600;
+    }
+    .btn-sm-green  { background: #3bb54a; color: #fff; }
+    .btn-sm-green:hover { background: #2ea63c; }
+    .btn-sm-red    { background: #e53e3e; color: #fff; }
+    .btn-sm-red:hover { background: #c53030; }
+    .btn-sm-gray   { background: #edf2f7; color: #4a5568; }
+    .btn-sm-gray:hover { background: #e2e8f0; }
+    .btn-sm-yellow { background: #d69e2e; color: #fff; }
+    .btn-sm-yellow:hover { background: #b7791f; }
+
+    /* ── Add Partner form ── */
+    .add-partner-form {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        max-width: 600px; margin-top: 16px;
+    }
+    .add-partner-form .full-width { grid-column: 1 / -1; }
+
+    /* ── Assign modal ── */
+    .modal-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,.55);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 800; display: none;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+        background: #fff; border-radius: 12px; padding: 28px 32px;
+        max-width: 440px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    }
+    .modal-box h3 { margin: 0 0 16px; }
+    .modal-box select, .modal-box input { width: 100%; margin-bottom: 12px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+
+    /* ── Password reveal modal ── */
+    .pwd-reveal {
+        background: #f7fafc; border: 1px solid #e2e8f0;
+        border-radius: 8px; padding: 12px 16px;
+        font-family: monospace; font-size: 1.05rem;
+        letter-spacing: .05em; text-align: center;
+        margin: 10px 0 16px;
+    }
+
+    @media (max-width: 768px) {
+        .admin-sidebar { position: relative; width: 100%; height: auto; }
+        .admin-sidebar-nav { flex-direction: row; overflow-x: auto; }
+        .admin-main { margin-left: 0; }
+        .site-header, .menu-backdrop, .dropdown-nav { margin-left: 0; width: 100%; }
+        .add-partner-form { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+
+  <div class="site-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-logo">M</div>
+        <div class="brand-name">MAGGY BAZAAR</div>
+      </div>
+      <div class="search-area">
+        <div class="search-bar">
+          <span></span>
+          <input type="text" placeholder="Search products, brands and categories">
+        </div>
+      </div>
+      <div class="nav-icons-container">
+        <div class="nav-icon-btn"><a href="home.html"><img src="icons/home-icon.png" alt="Home Icon"></a></div>
+        <div class="nav-icon-btn"><a href="account.html"><img src="icons/account-icon.png" alt="Account Icon"></a></div>
+        <div class="nav-icon-btn">
+          <a href="cart.html"><img src="icons/cart-icon.png" alt="Cart Icon"></a>
+          <div class="cart-badge" id="cartBadge">0</div>
+        </div>
+        <div class="nav-icon-btn" id="adminIconBtn" style="display:none;">
+          <a href="admin.html"><img src="icons/admin-icon.png" alt="Admin Icon"></a>
+        </div>
+      </div>
+      <button class="hamburger-btn nav-icon-btn" onclick="showMenu()" id="hamburgerIcon" aria-label="Menu">
+        <div class="hamburger-line"></div>
+        <div class="hamburger-line"></div>
+        <div class="hamburger-line"></div>
+      </button>
+    </div>
+  </div>
+
+  <div class="menu-backdrop" id="menuBackdrop"></div>
+  <div class="dropdown-nav" id="dropdownMenu">
+    <div class="dropdown-inner">
+      <div class="menu-group">
+        <div class="group-title">MY MG-B ACCOUNT</div>
+        <ul class="dropdown-links-list">
+          <li><a href="orders.html" class="menu-link"><span class="menu-icon"><img class="icons" src="icons/order-icon.png" alt="order Icon"></span> Orders</a></li>
+          <li><a href="inbox.html" class="menu-link"><span class="menu-icon"><img class="icons" src="icons/inbox-icon.png" alt="inbox Icon"></span> Inbox</a></li>
+          <li><a href="wishlist.html" class="menu-link"><span class="menu-icon"><img class="icons" src="icons/wishlist-icon.png" alt="wishlist Icon"></span> Wishlist</a></li>
+        </ul>
+      </div>
+      <div class="divider-light"></div>
+    </div>
+  </div>
+
+  <!-- ── Admin Sidebar ── -->
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-title">Admin Menu</div>
+    <nav class="admin-sidebar-nav">
+      <a href="#section-analytics"        class="admin-sidebar-link active">Analytics</a>
+      <a href="#section-add-product"      class="admin-sidebar-link">Add Product</a>
+      <a href="#section-update-stock"     class="admin-sidebar-link">Update Stock</a>
+      <a href="#section-products"         class="admin-sidebar-link">Products</a>
+      <a href="#section-orders"           class="admin-sidebar-link">Orders</a>
+      <a href="#section-delivery-partners" class="admin-sidebar-link">Delivery Partners</a>
+      <a href="#section-messages"         class="admin-sidebar-link">Messages</a>
+    </nav>
+  </aside>
+
+  <div class="admin-main">
+    <div class="admin-container">
+
+      <h1>Admin Dashboard</h1>
+      <div id="status" class="admin-status"></div>
+
+      <!-- ANALYTICS -->
+      <div class="admin-grid" id="section-analytics">
+        <div class="admin-card"><h3>Total Orders</h3><p id="ordersCount">0</p></div>
+        <div class="admin-card"><h3>Total Revenue</h3><p id="revenue">0</p></div>
+        <div class="admin-card"><h3>Pending Payments</h3><p id="pending">0</p></div>
+      </div>
+
+      <!-- ADD PRODUCT -->
+      <div class="admin-section" id="section-add-product">
+        <h2>Add Product</h2>
+        <input class="admin-input" id="name" placeholder="Product name">
+        <input class="admin-input" id="brand" placeholder="Brand">
+        <input class="admin-input" id="price" type="number" placeholder="Price">
+        <input class="admin-input" id="stock" type="number" placeholder="Stock">
+        <textarea class="admin-textarea" id="description" placeholder="Description"></textarea>
+        <input class="admin-input" id="category" placeholder="Category">
+        <input class="admin-input" id="subcategory" placeholder="Subcategory">
+        <input class="admin-input" id="image" placeholder="Image URL">
+        <input class="admin-input" id="imageFile" type="file" accept="image/*">
+        <button class="btn-primary" onclick="createProduct()">Create Product</button>
+      </div>
+
+      <!-- UPDATE STOCK -->
+      <div class="admin-section" id="section-update-stock">
+        <h2>Update Stock</h2>
+        <select class="admin-input" id="stockProductId">
+          <option value="">Select a product…</option>
+        </select>
+        <input class="admin-input" id="stockNewValue" type="number" placeholder="New stock quantity">
+        <button class="btn-primary" onclick="updateStock()">Update Stock</button>
+      </div>
+
+      <!-- PRODUCTS -->
+      <div class="admin-section" id="section-products">
+        <h2>Products</h2>
+        <table>
+          <thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Stock</th><th>Action</th></tr></thead>
+          <tbody id="productsTable"></tbody>
+        </table>
+      </div>
+
+      <!-- ORDERS -->
+      <div class="admin-section" id="section-orders">
+        <h2>Orders</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Customer</th><th>Products</th><th>Total</th>
+              <th>Status</th><th>Delivery Partner</th><th>Date</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTable"></tbody>
+        </table>
+      </div>
+
+      <!-- DELIVERY PARTNERS -->
+      <div class="admin-section" id="section-delivery-partners">
+        <h2>Delivery Partners</h2>
+
+        <!-- Add Partner Form -->
+        <h3 style="margin:20px 0 8px; font-size:1rem;">Add New Partner</h3>
+        <div class="add-partner-form">
+          <input class="admin-input" id="dp-name"     placeholder="Full name">
+          <input class="admin-input" id="dp-email"    type="email" placeholder="Email address">
+          <input class="admin-input" id="dp-phone"    placeholder="Phone number">
+          <input class="admin-input" id="dp-password" type="password" placeholder="Temporary password">
+          <select class="admin-input" id="dp-vehicle">
+            <option value="bike">Bike</option>
+            <option value="motorcycle">Motorcycle</option>
+            <option value="car">Car</option>
+            <option value="van">Van</option>
+          </select>
+          <div></div><!-- grid spacer -->
+          <button class="btn-primary full-width" onclick="createPartner()">Add Delivery Partner</button>
+        </div>
+
+        <!-- Partner Cards -->
+        <div class="partner-grid" id="partnerGrid">
+          <p style="color:#718096;grid-column:1/-1;">Loading partners…</p>
+        </div>
+      </div>
+
+    </div><!-- /.admin-container -->
+
+    <!-- MESSAGES -->
+    <section class="admin-msg-section" id="section-messages">
+      <div class="admin-section">
+        <h2>Contact Messages</h2>
+        <table id="contact-messages-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Message</th><th>Date</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+  </div><!-- /.admin-main -->
+
+  <!-- ── Assign Partner Modal ── -->
+  <div class="modal-overlay" id="assignModal">
+    <div class="modal-box">
+      <h3>Assign Delivery Partner</h3>
+      <p style="font-size:.85rem;color:#718096;margin-bottom:12px;">
+        Order <strong id="assignOrderLabel"></strong>
+      </p>
+      <select class="admin-input" id="assignPartnerSelect">
+        <option value="">Choose a partner…</option>
+      </select>
+      <div class="modal-actions">
+        <button class="btn-sm btn-sm-gray" onclick="closeAssignModal()">Cancel</button>
+        <button class="btn-sm btn-sm-green" onclick="confirmAssign()">Assign</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Password Reset Reveal Modal ── -->
+  <div class="modal-overlay" id="pwdModal">
+    <div class="modal-box">
+      <h3>New Temporary Password</h3>
+      <p style="font-size:.85rem;color:#718096;margin-bottom:6px;">
+        Share this with the delivery partner. It will not be shown again.
+      </p>
+      <div class="pwd-reveal" id="pwdReveal"></div>
+      <div class="modal-actions">
+        <button class="btn-sm btn-sm-gray" onclick="copyTempPassword()">Copy</button>
+        <button class="btn-sm btn-sm-green" onclick="closePwdModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+    // ── Dropdown / hamburger ──────────────────────────────────────
+    const dropdownMenu  = document.getElementById('dropdownMenu');
+    const menuBackdrop  = document.getElementById('menuBackdrop');
+    function showMenu() { dropdownMenu.classList.add('open'); menuBackdrop.classList.add('active'); }
+    function hideMenu() { dropdownMenu.classList.remove('open'); menuBackdrop.classList.remove('active'); }
+    menuBackdrop.addEventListener('click', hideMenu);
+
+    function updateAuthLinksVisibility() {
+        const authLinks = document.getElementById('authLinks');
+        if (!authLinks) return;
+        authLinks.style.display = Boolean(sessionStorage.getItem('userEmail')) ? 'none' : 'flex';
+    }
+    updateAuthLinksVisibility();
+
+    // ── Sidebar active-link on scroll ────────────────────────────
+    const sidebarLinks    = document.querySelectorAll('.admin-sidebar-link');
+    const sidebarSections = [...sidebarLinks].map(l => document.querySelector(l.getAttribute('href')));
+    function updateActiveSidebarLink() {
+        let idx = 0;
+        sidebarSections.forEach((sec, i) => { if (sec && sec.getBoundingClientRect().top <= 120) idx = i; });
+        sidebarLinks.forEach((l, i) => l.classList.toggle('active', i === idx));
+    }
+    window.addEventListener('scroll', updateActiveSidebarLink);
+    updateActiveSidebarLink();
+</script>
+
+<script src="static/admin.js"></script>
+</body>
+
+<div id="toast-container"></div>
+</html>

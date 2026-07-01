@@ -1,0 +1,17 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://maggy-bazaar-backend.onrender.com/api/:path*"
+    },
+    {
+      "source": "/uploads/:path*",
+      "destination": "https://maggy-bazaar-backend.onrender.com/uploads/:path*"
+    },
+    {
+      "source": "/",
+      "destination": "/home.html"
+    }
+  ]
+}

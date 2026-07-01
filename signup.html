@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <script src="config.js"></script>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #02F5A1, #07191E);
+    margin: 50px auto;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+}
+
+.brand-logo {
+    background: #02F5A1;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: #07191E;
+}
+
+.brand-name {
+    font-size: 1.7rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #02F5A1, #07191E);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+
+.login-container {
+    width: 500px;
+    padding: 40px;
+    border: 1px solid #000;
+    border-radius: 15px;
+    background: #fff;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.input-group {
+    margin-bottom: 25px;
+}
+
+label {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+input {
+    width: 100%;
+    height: 40px;
+    padding: 10px;
+    border: 2px solid #d3d3d3;
+    border-radius: 8px;
+    font-size: 16px;
+    box-shadow:  0 1px 8px rgba(0, 0, 0, 0.15);
+}
+
+button {
+    width: 100%;
+    height: 55px;
+    border: none;
+    border-radius: 8px;
+    background: #02F5A1;
+    color: #07191E;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #07191E;
+    color: #02F5A1;
+}
+
+p {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 18px;
+}
+
+a {
+    color: #005eff;
+    text-decoration: underline;
+}
+
+.phone-input {
+    margin-bottom: 5px;
+}
+
+.password-hint {
+    margin-top: 8px;
+    text-align: left;
+    font-size: 0.86rem;
+    color: #4a5568;
+}
+
+.password-meter {
+    height: 8px;
+    margin-top: 10px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    overflow: hidden;
+}
+
+.password-meter-fill {
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+    background: #e53e3e;
+    transition: width 0.2s ease, background 0.2s ease;
+}
+
+.password-meter-fill.medium {
+    background: #d69e2e;
+}
+
+.password-meter-fill.strong {
+    background: #2f855a;
+}
+
+.password-strength-label {
+    margin-top: 6px;
+    text-align: left;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #718096;
+}
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <form id="signupForm">
+        <div class="brand">
+                 <div class="brand-logo">M</div>
+                <div class="brand-name">MAGGY BAZAAR</div>
+            </div>
+            <div class="header">
+            <h2>Sign Up</h2>
+           </div>
+           <div id="authMessage" style="margin-bottom: 20px; color: #d00; font-size: 0.95rem;"></div>
+           <div class="input-group">
+                <label for="firstname">First Name:</label>
+                <input type="text" id="firstname" required>
+           </div>
+           <div class="input-group">
+                <label for="lastname">Last Name:</label>
+                <input type="text" id="lastname" required>
+            </div>
+            <div class="input-group">
+                <label for="phonenumber">Phone Number:</label>
+                <input class="phone-input" type="text" id="phonenumber" required>
+            </div>
+            <div class="input-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+            </div>
+
+            <div class="input-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+                <div id="passwordHint" class="password-hint">Use at least 8 characters with uppercase, lowercase, number, and special character.</div>
+                <div class="password-meter" aria-hidden="true">
+                    <div id="passwordMeterFill" class="password-meter-fill"></div>
+                </div>
+                <div id="passwordStrengthLabel" class="password-strength-label">Strength: Not started</div>
+            </div>
+
+            <button type="submit">Sign Up</button>
+
+            <p>
+                Already have an account?
+                <a href="login.html">Login</a>
+            </p>
+        </form>
+    </div>
+
+    <script>
+        const API_BASE = window.API_BASE_URL;
+
+        const signupForm = document.getElementById('signupForm');
+        const passwordInput = document.getElementById('password');
+        const passwordHint = document.getElementById('passwordHint');
+        const passwordMeterFill = document.getElementById('passwordMeterFill');
+        const passwordStrengthLabel = document.getElementById('passwordStrengthLabel');
+
+        function getPasswordChecks(password) {
+            return {
+                length: password.length >= 8,
+                lowercase: /[a-z]/.test(password),
+                uppercase: /[A-Z]/.test(password),
+                number: /\d/.test(password),
+                special: /[^A-Za-z0-9]/.test(password)
+            };
+        }
+
+        function getPasswordMessages(checks) {
+            const messages = [];
+            if (!checks.length) messages.push('8+ characters');
+            if (!checks.lowercase) messages.push('lowercase letter');
+            if (!checks.uppercase) messages.push('uppercase letter');
+            if (!checks.number) messages.push('number');
+            if (!checks.special) messages.push('special character');
+            return messages;
+        }
+
+        function updatePasswordStrength() {
+            const password = passwordInput.value;
+            const checks = getPasswordChecks(password);
+            const score = Object.values(checks).filter(Boolean).length;
+            const missing = getPasswordMessages(checks);
+
+            passwordMeterFill.className = 'password-meter-fill';
+            if (!password) {
+                passwordMeterFill.style.width = '0%';
+                passwordHint.textContent = 'Use at least 8 characters with uppercase, lowercase, number, and special character.';
+                passwordStrengthLabel.textContent = 'Strength: Not started';
+                return false;
+            }
+
+            passwordMeterFill.style.width = `${(score / 5) * 100}%`;
+            if (score <= 2) {
+                passwordStrengthLabel.textContent = 'Strength: Weak';
+            } else if (score <= 4) {
+                passwordMeterFill.classList.add('medium');
+                passwordStrengthLabel.textContent = 'Strength: Medium';
+            } else {
+                passwordMeterFill.classList.add('strong');
+                passwordStrengthLabel.textContent = 'Strength: Strong';
+            }
+
+            passwordHint.textContent = missing.length
+                ? `Missing: ${missing.join(', ')}.`
+                : 'Password meets all requirements.';
+
+            return missing.length === 0;
+        }
+
+        passwordInput.addEventListener('input', updatePasswordStrength);
+
+        signupForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const firstName = document.getElementById('firstname').value;
+            const lastName = document.getElementById('lastname').value;
+            const phone = document.getElementById('phonenumber').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!updatePasswordStrength()) {
+                document.getElementById('authMessage').textContent = 'Please choose a stronger password before signing up.';
+                passwordInput.focus();
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('firstName', firstName);
+            formData.append('lastName', lastName);
+            formData.append('phone', phone);
+            formData.append('email', email);
+            formData.append('password', password);
+
+            let response;
+            try {
+                response = await fetch(`${API_BASE}/api/signup`, {
+                    method: 'POST',
+                    body: formData
+                });
+            } catch (err) {
+                document.getElementById('authMessage').textContent = 'Unable to connect to the backend. Please start the Flask server on port 5000.';
+                return;
+            }
+
+            let result = {};
+            try {
+                result = await response.json();
+            } catch (err) {
+                document.getElementById('authMessage').textContent = 'Signup failed. Invalid server response.';
+                return;
+            }
+
+            if (!response.ok) {
+                document.getElementById('authMessage').textContent = result.error || 'Signup failed.';
+                return;
+            }
+
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+</html>

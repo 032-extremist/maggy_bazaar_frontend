@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders – Maggy Bazaar</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
+    <style>
+        /* ── Orders Page Layout ── */
+        .orders-page {
+            max-width: 860px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        .orders-page-title {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #07191E;
+            margin-bottom: 0.3rem;
+        }
+
+        .orders-page-subtitle {
+            font-size: 0.92rem;
+            color: #718096;
+            margin-bottom: 2rem;
+        }
+
+        /* ── Empty / Error state ── */
+        .orders-empty {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #a0aec0;
+        }
+
+        .orders-empty svg {
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+
+        .orders-empty p {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* ── Order Card ── */
+        .order-card {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+
+        .order-card:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.09);
+        }
+
+        /* Header bar */
+        .order-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.9rem 1.2rem;
+            background: #07191E;
+            color: #fff;
+        }
+
+        .order-card-header .order-id {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #02F5A1;
+        }
+
+        .order-card-header .order-date {
+            font-size: 0.82rem;
+            color: #a0aec0;
+        }
+
+        .order-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+            display: inline-block;
+        }
+
+        .order-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.7rem 1.2rem;
+            border-bottom: 1px solid #f0f4f8;
+            background: #f8fafc;
+        }
+
+        .order-items {
+            padding: 0.5rem 1.2rem;
+        }
+
+        .order-item-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid #f0f4f8;
+        }
+
+        .order-item-row:last-child {
+            border-bottom: none;
+        }
+
+        .order-item-img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 10px;
+            flex-shrink: 0;
+            background: #f0f0f0;
+        }
+
+        .order-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .order-item-name {
+            font-weight: 700;
+            font-size: 0.97rem;
+            color: #1a202c;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .order-item-brand {
+            font-size: 0.82rem;
+            color: #718096;
+            margin-bottom: 3px;
+        }
+
+        .order-item-qty {
+            font-size: 0.82rem;
+            color: #a0aec0;
+        }
+
+        .order-item-price {
+            font-weight: 700;
+            font-size: 0.97rem;
+            color: #07191E;
+            white-space: nowrap;
+        }
+
+        .order-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0.8rem 1.2rem;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            gap: 0.5rem;
+        }
+
+        .order-footer-label {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        .order-footer-total {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #07191E;
+        }
+    </style>
+
+    <style>
+        /* Status timeline */
+        .delivery-timeline { margin: 12px 0; padding: 0; list-style: none; }
+        .delivery-timeline li {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 6px 0; font-size: 0.85rem; color: #718096;
+        }
+        .delivery-timeline li .dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: #e2e8f0; flex-shrink: 0; margin-top: 3px;
+        }
+        .delivery-timeline li.done .dot  { background: #3bb54a; }
+        .delivery-timeline li.done span  { color: #2d3748; font-weight: 600; }
+
+        /* Delivery partner info */
+        .delivery-partner-info {
+            background: #f0fff4; border: 1px solid #9ae6b4;
+            border-radius: 8px; padding: 10px 14px; margin-top: 8px;
+            font-size: 0.85rem; color: #276749;
+        }
+
+        /* OTP reveal box */
+        .otp-box {
+            background: #fffbeb; border: 2px solid #f6e05e;
+            border-radius: 10px; padding: 14px 18px; margin-top: 12px;
+            text-align: center;
+        }
+        .otp-box .otp-label {
+            font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .06em; color: #b7791f; margin-bottom: 6px;
+        }
+        .otp-box .otp-code {
+            font-size: 2rem; font-weight: 800; letter-spacing: .18em;
+            color: #744210; font-family: monospace;
+        }
+        .otp-box .otp-hint {
+            font-size: 0.78rem; color: #92400e; margin-top: 6px;
+        }
+
+        /* Status badge colours */
+        .status-badge { padding: 3px 10px; border-radius: 12px; font-size: .75rem; font-weight: 700; text-transform: uppercase; }
+        .status-processing      { background:#e2e8f0; color:#4a5568; }
+        .status-confirmed       { background:#bee3f8; color:#2a4365; }
+        .status-assigned        { background:#e9d8fd; color:#44337a; }
+        .status-packed          { background:#c6f6d5; color:#22543d; }
+        .status-out_for_delivery{ background:#fefcbf; color:#744210; }
+        .status-delivered       { background:#c6f6d5; color:#22543d; }
+        .status-cancelled       { background:#fed7d7; color:#822727; }
+    </style>
+</head>
+
+<body>
+    <div class="site-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-logo">M</div>
+                <div class="brand-name">MAGGY BAZAAR</div>
+            </div>
+
+            <div class="search-area">
+                <div class="search-wrapper">
+                    <input id="search-input" type="text" placeholder="Search products…" autocomplete="off">
+                    <div id="search-results"></div>
+                </div>
+            </div>
+
+            <script src="search.js"></script>
+
+            <div class="nav-icons-container">
+                <div class="nav-icon-btn">
+                    <a href="home.html"><img src="icons/home-icon.png" alt="Home Icon"></a>
+                </div>
+                <div class="nav-icon-btn">
+                    <a href="account.html"><img src="icons/account-icon.png" alt="Account Icon"></a>
+                </div>
+                <div class="nav-icon-btn">
+                    <a href="cart.html"><img src="icons/cart-icon.png" alt="Cart Icon"></a>
+                    <div class="cart-badge" id="cartBadge">0</div>
+                </div>
+            </div>
+
+            <button class="hamburger-btn nav-icon-btn" onclick="showMenu()" id="hamburgerIcon" aria-label="Menu">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </button>
+        </div>
+    </div>
+
+    <div class="menu-backdrop" id="menuBackdrop"></div>
+
+    <div class="dropdown-nav" id="dropdownMenu">
+        <div class="dropdown-inner">
+            <div class="menu-group">
+                <div class="group-title">MY MG-B ACCOUNT</div>
+                <ul class="dropdown-links-list">
+                    <li><a href="orders.html" class="menu-link"><span class="menu-icon"><img class="icons" src="icons/order-icon.png" alt="order Icon"></span> Orders</a></li>
+                    <li><a href="inbox.html" class="menu-link"><span class="menu-icon"><img class="icons" src="icons/inbox-icon.png" alt="inbox Icon"></span> Inbox</a></li>
+                    <li><a href="wishlist.html" class="menu-link"><span class="menu-icon"><img class="icons" src="icons/wishlist-icon.png" alt="wishlist Icon"></span> Wishlist</a></li>
+                </ul>
+            </div>
+            <div class="divider-light"></div>
+        </div>
+    </div>
+
+    <script>
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const menuBackdrop = document.getElementById('menuBackdrop');
+
+        function showMenu() {
+            dropdownMenu.classList.add('open');
+            menuBackdrop.classList.add('active');
+        }
+        function hideMenu() {
+            dropdownMenu.classList.remove('open');
+            menuBackdrop.classList.remove('active');
+        }
+        menuBackdrop.addEventListener('click', hideMenu);
+    </script>
+
+    <!-- ── Orders Page ── -->
+    <div class="orders-page">
+        <h1 class="orders-page-title">My Orders</h1>
+        <p class="orders-page-subtitle">Review your recent purchases and track delivery status.</p>
+
+        <div id="ordersStatus"></div>
+        <div id="ordersList"></div>
+    </div>
+
+    <script>
+        const userEmail    = sessionStorage.getItem('userEmail');
+        const ordersStatus = document.getElementById('ordersStatus');
+        const ordersList   = document.getElementById('ordersList');
+
+        const CUSTOMER_API = window.deliveryApiPath('/api/customer');
+
+        const STATUS_LABELS = {
+            processing:       "Order Placed",
+            confirmed:        "Confirmed",
+            assigned:         "Delivery Partner Assigned",
+            packed:           "Packed & Ready",
+            out_for_delivery: "Out for Delivery",
+            delivered:        "Delivered",
+            cancelled:        "Cancelled",
+        };
+
+        const STATUS_STEPS = ["processing","confirmed","assigned","packed","out_for_delivery","delivered"];
+
+        function timelineHtml(order) {
+            if (order.status === "cancelled") {
+                return `<ul class="delivery-timeline"><li class="done"><div class="dot"></div><span>Cancelled</span></li></ul>`;
+            }
+            const currentIndex = STATUS_STEPS.indexOf(order.status);
+            return `<ul class="delivery-timeline">
+                ${STATUS_STEPS.map((step, i) => `
+                    <li class="${i <= currentIndex ? 'done' : ''}">
+                        <div class="dot"></div>
+                        <span>${STATUS_LABELS[step] || step}</span>
+                    </li>`).join("")}
+            </ul>`;
+        }
+
+        function partnerHtml(order) {
+            if (!order.partner_name) return "";
+            return `<div class="delivery-partner-info">
+                        🚴 <strong>${order.partner_name}</strong> — ${order.partner_phone || ""}
+                    </div>`;
+        }
+
+        function otpHtml(order) {
+            if (!order.delivery_otp) return "";
+            return `<div class="otp-box">
+                        <div class="otp-label">Your Delivery Code</div>
+                        <div class="otp-code">${order.delivery_otp}</div>
+                        <div class="otp-hint">Show this code to the delivery person when they arrive.</div>
+                    </div>`;
+        }
+
+        function renderOrders(orders) {
+            if (!orders.length) {
+                ordersStatus.innerHTML = `
+                    <div class="orders-empty">
+                        <svg width="64" height="64" fill="none" stroke="#07191E" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4"/>
+                            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                        </svg>
+                        <p>You have no orders yet.</p>
+                        <a href="home.html" class="btn-primary" style="display:inline-block; padding:0.6rem 1.4rem;">Start Shopping</a>
+                    </div>`;
+                ordersList.innerHTML = '';
+                return;
+            }
+
+            ordersStatus.textContent = '';
+            ordersList.innerHTML = orders.map(order => {
+                const itemsHtml = (order.items || []).map(item => `
+                    <div class="order-item-row">
+                        <img class="order-item-img"
+                             src="${item.image || 'icons/order-icon.png'}"
+                             alt="${item.name}"
+                             onerror="this.src='icons/order-icon.png'">
+                        <div class="order-item-info">
+                            <div class="order-item-name">${item.name}</div>
+                            <div class="order-item-brand">${item.brand || ''}</div>
+                            <div class="order-item-qty">Qty: ${item.quantity}</div>
+                        </div>
+                        <div class="order-item-price">KES ${(item.price * item.quantity).toLocaleString()}</div>
+                    </div>
+                `).join('');
+
+                const total = (order.items || []).reduce((s, i) => s + i.price * i.quantity, 0);
+                const date  = order.created_at ? new Date(order.created_at).toLocaleDateString('en-KE', {
+                    day: 'numeric', month: 'short', year: 'numeric'
+                }) : '';
+                const orderIdDisplay = order.orderId || order.id;
+
+                return `
+                    <div class="order-card">
+                        <div class="order-card-header">
+                            <span class="order-id">Order #${orderIdDisplay}</span>
+                            <span class="order-date">${date}</span>
+                        </div>
+                        <div class="order-meta">
+                            <span class="status-badge status-${order.status}">${STATUS_LABELS[order.status] || order.status}</span>
+                            <span style="font-size:0.8rem;color:#718096;">${(order.items || []).length} item${(order.items || []).length !== 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="order-items">${itemsHtml}</div>
+                        <div style="padding: 0 1.2rem 1rem;">
+                            ${timelineHtml(order)}
+                            ${partnerHtml(order)}
+                            ${otpHtml(order)}
+                        </div>
+                        <div class="order-footer">
+                            <span class="order-footer-label">Order Total</span>
+                            <span class="order-footer-total">KES ${total.toLocaleString()}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadOrders() {
+            if (!userEmail) {
+                ordersStatus.innerHTML = '<p>Please <a href="login.html">login</a> to view your orders.</p>';
+                return;
+            }
+            try {
+                const res  = await fetch(`${CUSTOMER_API}/orders`, {
+                    headers: { "X-Customer-Email": userEmail },
+                });
+                const data = await res.json();
+                if (!res.ok) { ordersStatus.textContent = data.error || 'Unable to load orders.'; return; }
+                renderOrders(data);
+            } catch (err) {
+                ordersStatus.textContent = 'Unable to load orders. Please try again later.';
+                console.error(err);
+            }
+        }
+
+        async function updateCartCount() {
+            const email = sessionStorage.getItem('userEmail');
+            const badge = document.getElementById('cartBadge');
+            if (!email || !badge) return;
+            try {
+                const res  = await fetch(window.apiPath(`/api/cart/${encodeURIComponent(email)}`));
+                if (!res.ok) { badge.style.display = 'none'; return; }
+                const data = await res.json();
+                const total = data.reduce((s, i) => s + i.quantity, 0);
+                badge.textContent   = total;
+                badge.style.display = total ? 'flex' : 'none';
+            } catch (e) { console.error(e); }
+        }
+
+        loadOrders();
+        updateCartCount();
+    </script>
+
+    <footer>
+        &copy; 2026 Maggy Bazaar. All rights reserved.
+    </footer>
+</body>
+
+</html>
