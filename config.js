@@ -2,8 +2,8 @@
     const localHosts = ["localhost", "127.0.0.1"];
     const localBackend = "http://127.0.0.1:5000";
     const localDeliveryBackend = "http://127.0.0.1:5050";
-    const productionBackend = "";
-    const productionDeliveryBackend = "https://YOUR-DELIVERY-BACKEND.onrender.com";
+    const productionBackend = "https://maggy-bazaar-backend.onrender.com";
+    const productionDeliveryBackend = "https://mb-delivery-backend.onrender.com";
     const isLocal = localHosts.includes(window.location.hostname);
     const configuredBase = window.API_BASE_URL || "";
     const configuredDeliveryBase = window.DELIVERY_API_BASE_URL || "";
