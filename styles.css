@@ -1481,66 +1481,207 @@ mark {
 /* Mobile layout fixes shared across storefront pages */
 @media (max-width: 680px) {
     .header-container {
-        flex-direction: column;
-        align-items: stretch;
-        justify-content: flex-start;
-        gap: 0.85rem;
-        padding: 1rem;
+        position: relative;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.3rem;
+        padding: 0.55rem 0.6rem;
+        overflow: visible;
     }
 
     .brand,
     .nav-icons-container,
     .search-area,
     .auth-links {
-        width: 100%;
+        width: auto;
+        flex: 0 0 auto;
     }
 
     .brand {
         order: 1;
-        justify-content: center;
+        justify-content: flex-start;
+        gap: 0;
+    }
+
+    .brand-name {
+        display: none;
+    }
+
+    .brand-logo {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
     }
 
     .nav-icons-container {
         order: 2;
         justify-content: center;
         margin-left: 0;
-        gap: 0.75rem;
+        gap: 0.25rem;
+    }
+
+    .nav-icon-btn,
+    .hamburger-btn {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        border-width: 1px;
+    }
+
+    .nav-icon-btn img {
+        width: 16px;
+        height: 16px;
+    }
+
+    .cart-badge {
+        top: -5px;
+        right: -5px;
+        min-width: 15px;
+        height: 15px;
+        font-size: 0.65rem;
+        padding: 0 4px;
     }
 
     .search-area {
         order: 3;
         max-width: none;
+        position: static;
+        flex-basis: 32px;
     }
 
-    .search-wrapper,
-    .search-bar,
-    #search-input {
+    .search-wrapper {
+        width: 32px;
+        height: 32px;
+        position: relative;
+        border-radius: 999px;
+    }
+
+    .search-area:not(.mobile-search-open) .search-wrapper {
+        background: #02F5A1;
+        border: 1px solid #02F5A1;
+        cursor: pointer;
+    }
+
+    .search-area:not(.mobile-search-open) .search-wrapper::before {
+        content: "";
+        position: absolute;
+        left: 9px;
+        top: 8px;
+        width: 10px;
+        height: 10px;
+        border: 2px solid #07191E;
+        border-radius: 50%;
+    }
+
+    .search-area:not(.mobile-search-open) .search-wrapper::after {
+        content: "";
+        position: absolute;
+        left: 20px;
+        top: 20px;
+        width: 8px;
+        height: 2px;
+        background: #07191E;
+        border-radius: 2px;
+        transform: rotate(45deg);
+        transform-origin: left center;
+    }
+
+    .search-area:not(.mobile-search-open) #search-input {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .search-area:not(.mobile-search-open) #search-results {
+        display: none !important;
+    }
+
+    .search-area.mobile-search-open {
+        position: absolute;
+        left: 0.6rem;
+        right: 0.6rem;
+        top: calc(100% + 0.45rem);
+        z-index: 250;
+        flex-basis: auto;
+    }
+
+    .search-area.mobile-search-open .search-wrapper {
         width: 100%;
+        height: auto;
+    }
+
+    .search-area.mobile-search-open #search-input {
+        width: 100%;
+        height: 42px;
+        padding: 0.65rem 0.95rem;
+        opacity: 1;
+        pointer-events: auto;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+    }
+
+    .search-area.mobile-search-open #search-results {
+        left: 0;
+        right: 0;
+        width: auto;
+        max-height: min(60vh, 380px);
+        overflow-y: auto;
     }
 
     .auth-links {
         order: 4;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.7rem;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
         padding-bottom: 0;
     }
 
     .auth-links .btn-primary {
-        width: 100%;
-        min-height: 46px;
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        min-height: 32px;
+        padding: 0;
         margin-top: 0;
+        border-radius: 50%;
+        font-size: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        text-align: center;
+    }
+
+    .auth-links .btn-primary::before {
+        display: block;
+    }
+
+    .auth-links .btn-primary[href*="login"]::before {
+        content: "";
+        width: 16px;
+        height: 16px;
+        background: url("icons/account-icon.png") center / contain no-repeat;
+    }
+
+    .auth-links .btn-primary[href*="signup"]::before {
+        content: "+";
+        color: #07191E;
+        font-size: 1.35rem;
+        line-height: 1;
+        font-weight: 800;
     }
 
     .hamburger-btn {
         order: 5;
-        align-self: center;
         flex: 0 0 auto;
         margin-left: 0;
+    }
+
+    .hamburger-line {
+        width: 16px;
+        height: 2px;
     }
 
     .products-grid,

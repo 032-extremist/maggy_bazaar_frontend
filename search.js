@@ -3,8 +3,36 @@
 
 const searchInput = document.getElementById("search-input");
 const searchResults = document.getElementById("search-results");
+const searchArea = searchInput ? searchInput.closest(".search-area") : null;
 
 let debounceTimer = null;
+
+function isMobileSearchLayout() {
+  return window.matchMedia("(max-width: 680px)").matches;
+}
+
+function openMobileSearch() {
+  if (!searchArea || !isMobileSearchLayout()) return;
+  searchArea.classList.add("mobile-search-open");
+  setTimeout(() => searchInput.focus(), 0);
+}
+
+function closeMobileSearch() {
+  if (!searchArea || !isMobileSearchLayout()) return;
+  if (!searchInput.value.trim()) {
+    searchArea.classList.remove("mobile-search-open");
+  }
+}
+
+if (searchArea) {
+  searchArea.addEventListener("click", (e) => {
+    if (!isMobileSearchLayout()) return;
+    if (!searchArea.classList.contains("mobile-search-open")) {
+      e.preventDefault();
+      openMobileSearch();
+    }
+  });
+}
 
 // ── Event listener ─────────────────────────────────────────────────────────────
 searchInput.addEventListener("input", () => {
@@ -13,6 +41,7 @@ searchInput.addEventListener("input", () => {
 
   if (!query) {
     clearResults();
+    closeMobileSearch();
     return;
   }
 
@@ -22,9 +51,17 @@ searchInput.addEventListener("input", () => {
 
 // Close results when clicking outside
 document.addEventListener("click", (e) => {
-  if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+  if (!searchInput.contains(e.target) && !searchResults.contains(e.target) && (!searchArea || !searchArea.contains(e.target))) {
     clearResults();
+    closeMobileSearch();
   }
+});
+
+searchInput.addEventListener("focus", openMobileSearch);
+
+window.addEventListener("resize", () => {
+  if (!searchArea || isMobileSearchLayout()) return;
+  searchArea.classList.remove("mobile-search-open");
 });
 
 // ── Fetch ──────────────────────────────────────────────────────────────────────
