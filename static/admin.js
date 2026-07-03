@@ -105,6 +105,135 @@ async function deleteProduct(id) {
 }
 
 
+// ── Edit Product Modal ─────────────────────────────────────────────
+function openEditProductModal(id) {
+    const p = _allProducts.find(prod => prod.id === id);
+    if (!p) { setStatus("Product not found", "error"); return; }
+
+    document.getElementById("edit-product-id").value      = p.id;
+    document.getElementById("edit-name").value             = p.name || "";
+    document.getElementById("edit-brand").value             = p.brand || "";
+    document.getElementById("edit-price").value             = p.price || "";
+    document.getElementById("edit-stock").value             = p.stock || "";
+    document.getElementById("edit-description").value       = p.description || "";
+    document.getElementById("edit-category").value          = p.category || "";
+    document.getElementById("edit-subcategory").value       = p.subcategory || "";
+    document.getElementById("edit-imageFile").value         = "";
+
+    const imgPreview = document.getElementById("edit-current-image");
+    if (p.image) {
+        imgPreview.src = p.image;
+        imgPreview.style.display = "block";
+    } else {
+        imgPreview.style.display = "none";
+    }
+
+    document.getElementById("editProductModal").classList.add("open");
+}
+
+function closeEditProductModal() {
+    document.getElementById("editProductModal").classList.remove("open");
+}
+
+async function saveProductEdit() {
+    const id = document.getElementById("edit-product-id").value;
+    const fileInput = document.getElementById("edit-imageFile");
+    const file = fileInput.files[0];
+
+    let imageUrl = document.getElementById("edit-current-image").src;
+    const existing = _allProducts.find(p => p.id === parseInt(id));
+    if (!file && existing) imageUrl = existing.image;
+
+    if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const uploadRes  = await fetch(`${BASE}/api/admin/upload-image`, { method: "POST", body: formData });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok || uploadData.error) { setStatus(uploadData.error || "Image upload failed", "error"); return; }
+        imageUrl = uploadData.imageUrl;
+    }
+
+    const body = {
+        name: document.getElementById("edit-name").value,
+        brand: document.getElementById("edit-brand").value,
+        price: document.getElementById("edit-price").value,
+        stock: document.getElementById("edit-stock").value,
+        description: document.getElementById("edit-description").value,
+        category: document.getElementById("edit-category").value,
+        subcategory: document.getElementById("edit-subcategory").value,
+        image: imageUrl,
+    };
+
+    const res  = await fetch(`${API}/products/${id}`, {
+        method: "PUT",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) { setStatus(data.error || "Failed to update product", "error"); return; }
+
+    setStatus("Product updated");
+    closeEditProductModal();
+    loadProducts();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+let _allProducts = [];  // cache for edit modal
+
+async function loadProducts() {
+    const res  = await fetch(`${BASE}/api/products`);
+    const data = await res.json();
+    _allProducts = data;
+
+    const table       = document.getElementById("productsTable");
+    const stockSelect = document.getElementById("stockProductId");
+    const prev        = stockSelect ? stockSelect.value : "";
+
+    table.innerHTML = "";
+    if (stockSelect) stockSelect.innerHTML = `<option value="">Select a product…</option>`;
+
+    data.forEach(p => {
+        table.innerHTML += `
+        <tr>
+            <td>${p.id}</td><td>${p.name}</td><td>${p.price}</td><td>${p.stock}</td>
+            <td>
+                <button class="btn-icon" title="Edit" onclick="openEditProductModal(${p.id})">✏️</button>
+                <button class="btn-primary" onclick="deleteProduct(${p.id})">Delete</button>
+            </td>
+        </tr>`;
+        if (stockSelect)
+            stockSelect.innerHTML += `<option value="${p.id}">${p.name} (current: ${p.stock})</option>`;
+    });
+
+    if (stockSelect && prev) stockSelect.value = prev;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ── Orders ────────────────────────────────────────────────────────
 let _allPartners = [];   // cache for the assign modal
 

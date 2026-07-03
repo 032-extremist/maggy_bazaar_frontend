@@ -98,6 +98,19 @@
         margin: 10px 0 16px;
     }
 
+
+    .btn-icon {
+    background: none; border: none; cursor: pointer;
+    font-size: 1rem; padding: 4px 8px; border-radius: 6px;
+    margin-right: 6px;
+}
+.btn-icon:hover { background: #edf2f7; }
+
+
+
+
+
+
     @media (max-width: 768px) {
         .admin-sidebar { position: relative; width: 100%; height: auto; }
         .admin-sidebar-nav { flex-direction: row; overflow-x: auto; }
@@ -303,6 +316,46 @@
       </div>
     </div>
   </div>
+
+
+
+<!-- ── Edit Product Modal ── -->
+<div class="modal-overlay" id="editProductModal">
+  <div class="modal-box" style="max-width:480px;">
+    <h3>Edit Product</h3>
+    <input type="hidden" id="edit-product-id">
+    <input class="admin-input" id="edit-name" placeholder="Product name">
+    <input class="admin-input" id="edit-brand" placeholder="Brand">
+    <input class="admin-input" id="edit-price" type="number" placeholder="Price">
+    <input class="admin-input" id="edit-stock" type="number" placeholder="Stock">
+    <textarea class="admin-textarea" id="edit-description" placeholder="Description"></textarea>
+    <input class="admin-input" id="edit-category" placeholder="Category">
+    <input class="admin-input" id="edit-subcategory" placeholder="Subcategory">
+    <div style="margin-bottom:10px;">
+      <img id="edit-current-image" src="" alt="Current image"
+           style="max-width:100px;max-height:100px;display:none;border-radius:6px;margin-bottom:6px;">
+    </div>
+    <input class="admin-input" id="edit-imageFile" type="file" accept="image/*">
+    <div class="modal-actions">
+      <button class="btn-sm btn-sm-gray" onclick="closeEditProductModal()">Cancel</button>
+      <button class="btn-sm btn-sm-green" onclick="saveProductEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <script>
     // ── Dropdown / hamburger ──────────────────────────────────────
